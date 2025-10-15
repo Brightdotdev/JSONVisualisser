@@ -3,7 +3,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 
 import { JsonValue } from '@/types/JsonTypes';
 import { SearchResult } from '@/types/Search';
-import { JsonSearch } from "../utils/jsonSearch";
+import { JsonSearch } from "../utils/JsonSearch";
 
 
 
@@ -94,9 +94,7 @@ export const useJsonSearch = ({
     setIsSearching(false);
   }, []);
 
-  const searchFromHistory = useCallback((term: string) => {
-    setSearchTerm(term);
-  }, []);
+  
 
   return {
     searchTerm,
@@ -105,7 +103,6 @@ export const useJsonSearch = ({
     isSearching,
     searchHistory,
     clearSearch,
-    searchFromHistory,
     hasResults: searchResult ? searchResult.matches.length > 0 : false
   };
 };

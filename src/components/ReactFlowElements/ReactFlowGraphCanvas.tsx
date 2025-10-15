@@ -7,9 +7,8 @@ import PerformanceDebugger from "../elements/PerformanceDebugger";
 import { JsonNode } from "../nodes/JsonNode";
 import { detectEnhancedType } from "@/lib/utitlityTypeDetectors";
 import { ReactFlowNode } from "@/types/JsonNodeTypes";
-
-import { AdvancedSearchPanel } from "../elements/SearchPannel";
 import { SearchMatch } from "@/types/Search";
+import { AdvancedSearchPanel } from "../elements/SearchPannel";
 
 
 export const ReactFlowGraphCanvas = ({ jsonTab }: { jsonTab: JsonTab }) => {
@@ -261,10 +260,11 @@ export const ReactFlowGraphCanvas = ({ jsonTab }: { jsonTab: JsonTab }) => {
         <AdvancedSearchPanel
           jsonData={jsonData}
           onSearchResults={handleSearchResults}
-          onHighlightedNodes={handleHighlightedNodes}  
+          onHighlightedNodes={handleHighlightedNodes}
+          onZoomToNode={handleZoomToNode}
           onClearSearch={handleClearSearch}
-        
-          />
+          // onExpandToNode={handleExpandToNode}
+        />
 
         {/* Control Buttons */}
         <div className="fixed top-5 right-5 z-50 flex gap-2">
@@ -303,6 +303,7 @@ export const ReactFlowGraphCanvas = ({ jsonTab }: { jsonTab: JsonTab }) => {
         </div>
       )}
 
+  
   
 
       <PerformanceDebugger nodes={nodes} edges={edges} />
