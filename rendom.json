@@ -1,0 +1,87 @@
+{
+  "users": [
+    {
+      "user_id": 1001,
+      "name": "Alex Johnson",
+      "email": "alex.j@example.com",
+      "address": {
+        "street": "742 Evergreen Terrace",
+        "city": "Springfield",
+        "zipcode": "80201"
+      },
+      "orders": [
+        {
+          "order_id": "ORD-2023-5839",
+          "date": "2023-11-15",
+          "status": "delivered",
+          "items": [
+            {
+              "product_id": "PROD-882",
+              "name": "Wireless Bluetooth Headphones",
+              "category": "Electronics",
+              "price": 79.99,
+              "quantity": 1
+            },
+            {
+              "product_id": "PROD-104",
+              "name": "Organic Cotton T-Shirt",
+              "category": "Apparel",
+              "price": 24.50,
+              "quantity": 2
+            }
+          ],
+          "total_amount": 128.99
+        }
+      ]
+    },
+    {
+      "user_id": 1002,
+      "name": "Samira Patel",
+      "email": "sam.patel@example.com",
+      "address": {
+        "street": "123 Oak Avenue",
+        "city": "Riverside",
+        "zipcode": "92507"
+      },
+      "orders": [
+        {
+          "order_id": "ORD-2023-6012",
+          "date": "2023-11-18",
+          "status": "shipped",
+          "items": [
+            {
+              "product_id": "PROD-305",
+              "name": "Stainless Steel Water Bottle",
+              "category": "Home & Kitchen",
+              "price": 18.95,
+              "quantity": 1
+            }
+          ],
+          "total_amount": 18.95
+        },
+        {
+          "order_id": "ORD-2023-6104",
+          "date": "2023-11-20",
+          "status": "processing",
+          "items": [
+            {
+              "product_id": "PROD-771",
+              "name": "Yoga Mat - Non-Slip",
+              "category": "Sports & Outdoors",
+              "price": 29.99,
+              "quantity": 1
+            },
+            {
+              "product_id": "PROD-229",
+              "name": "Protein Powder (Vanilla)",
+              "category": "Health & Wellness",
+              "price": 34.99,
+              "quantity": 2
+            }
+          ],
+          "total_amount": 99.97
+        }
+      ]
+    }
+  ]
+}
