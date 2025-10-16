@@ -56,7 +56,7 @@ const processChildNode = (
 export const useJsonState = (tabSlug: string) => {
   const { getJsonTab } = useJsonTabs();
 
-   const [containerSize, setContainerSize] = useState({ width: 1200, height: 800 });
+   const [containerSize, setContainerSize] = useState<{ width: number; height: number }>({ width: 1200, height: 800 });
 
 
 

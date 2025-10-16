@@ -8,23 +8,29 @@ import { JsonNode } from "../nodes/JsonNode";
 import { detectEnhancedType } from "@/lib/utitlityTypeDetectors";
 import { ReactFlowNode } from "@/types/JsonNodeTypes";
 import { SearchMatch } from "@/types/Search";
-import { AdvancedSearchPanel } from "../elements/SearchPannel";
+import { useNodeLayout } from "@/hooks/Reactflow/useNodeLayout";
+import { EnhancedSearchPanel } from "../Search/SearchPannel";
 
 
 export const ReactFlowGraphCanvas = ({ jsonTab }: { jsonTab: JsonTab }) => {
+
+  const reactFlowInstance = useReactFlow();
+
   const { 
     jsonData,
     currentNodes, 
     currentEdges, 
+    containerSize,
     addProcessedChildNode, 
     removeJsonState,
     applyTreeLayout,
   } = useJsonState(jsonTab.slug);
 
-  const reactFlowInstance = useReactFlow();
   const containerRef = useRef<HTMLDivElement>(null);
-  const [isLayoutAnimating, setIsLayoutAnimating] = useState(false);
   
+  
+
+
   // Search state
   const [searchResults, setSearchResults] = useState<SearchMatch[]>([]);
   const [highlightedNodes, setHighlightedNodes] = useState<Set<string>>(new Set());
@@ -33,11 +39,18 @@ export const ReactFlowGraphCanvas = ({ jsonTab }: { jsonTab: JsonTab }) => {
   const [nodes, setNodes, onNodesChange] = useNodesState(currentNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>(currentEdges);
 
+
+  const {handleReLayout, handleFitView , isLayoutAnimating, setIsLayoutAnimating} = useNodeLayout({nodes, edges,containerSize,reactFlowInstance,setNodes});
+
+
+  
   const nodeTypes = useMemo(() => ({
     jsonNode: JsonNode,
     arrayNode: JsonNode,
     primitiveNode: JsonNode,
   }), []);
+
+
 
   // Sync with current state
   useEffect(() => {
@@ -58,28 +71,8 @@ export const ReactFlowGraphCanvas = ({ jsonTab }: { jsonTab: JsonTab }) => {
     }
   }, []);
 
-  const handleReLayout = useCallback(() => {
-    setIsLayoutAnimating(true);
-    const newlyLaidOutNodes = applyTreeLayout(nodes, edges);
-    setNodes(newlyLaidOutNodes);
-    
-    setTimeout(() => {
-      reactFlowInstance?.fitView({ 
-        duration: 800,
-        padding: 0.15 
-      });
-      setIsLayoutAnimating(false);
-    }, 600);
-  }, [nodes, edges, applyTreeLayout, reactFlowInstance]);
 
-  const handleFitView = useCallback(() => {
-    if (reactFlowInstance) {
-      reactFlowInstance.fitView({ 
-        duration: 400,
-        padding: 0.1 
-      });
-    }
-  }, [reactFlowInstance]);
+
 
   const handleNodeExpand = useCallback(async (
     jsonData: any, 
@@ -256,16 +249,14 @@ export const ReactFlowGraphCanvas = ({ jsonTab }: { jsonTab: JsonTab }) => {
           },
         }}
       >
-        {/* Advanced Search Panel */}
-        <AdvancedSearchPanel
-          jsonData={jsonData}
-          onSearchResults={handleSearchResults}
-          onHighlightedNodes={handleHighlightedNodes}
-          onZoomToNode={handleZoomToNode}
-          onClearSearch={handleClearSearch}
-          // onExpandToNode={handleExpandToNode}
-        />
-
+     
+     <EnhancedSearchPanel
+  jsonData={jsonData}
+  onSearchResults={handleSearchResults}
+  onHighlightedNodes={handleHighlightedNodes}  
+  onClearSearch={handleClearSearch}
+  onZoomToNode={handleZoomToNode}
+/>
         {/* Control Buttons */}
         <div className="fixed top-5 right-5 z-50 flex gap-2">
           <Button 
