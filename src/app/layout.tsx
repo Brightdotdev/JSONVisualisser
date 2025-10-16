@@ -58,7 +58,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>    
-      <body className="h-screen  bg-background text-foreground antialiased font-mono flex flex-col  items-center justify-between gap-16 overflow-x-hidden">
+      <body className="h-screen w-screeen  bg-background text-foreground antialiased font-mono flex flex-col  items-center justify-between gap-16 overflow-x-hidden">
          <ThemeProvider defaultTheme="system">
         
         

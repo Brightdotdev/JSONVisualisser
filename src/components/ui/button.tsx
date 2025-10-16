@@ -12,9 +12,9 @@ const buttonVariants = cva(
         // Original shadcn variants
         default: "bg-primary text-primary-foreground shadow-xs hover:bg-primary/90 dark:hover:bg-primary/80",
         destructive:
-          "bg-destructive text-destructive-foreground shadow-xs hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60 dark:hover:bg-destructive/70",
+          "bg-destructive text-destructive-foreground shadow-xs hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive dark:hover:bg-destructive/70",
         outline:
-          "border border-input bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50",
+          "border border-input bg-background shadow-xs hover:bg-accent hover:text-accent-foreground  dark:border-input dark:hover:bg-background-lighter",
         secondary:
           "bg-secondary text-secondary-foreground shadow-xs hover:bg-secondary/80 dark:hover:bg-secondary/70",
         ghost:
@@ -27,7 +27,7 @@ const buttonVariants = cva(
         warning: 
           "bg-warning text-warning-foreground shadow-xs hover:bg-warning/90 dark:hover:bg-warning/80 focus-visible:ring-warning/20 dark:focus-visible:ring-warning/40",
         info: 
-          "bg-info text-info-foreground shadow-xs hover:bg-info/90 dark:hover:bg-info/80 focus-visible:ring-info/20 dark:focus-visible:ring-info/40",
+          "bg-info  shadow-xs hover:bg-info/90 dark:hover:bg-info/80 focus-visible:ring-info/20 dark:focus-visible:ring-info/40",
         progress: 
           "bg-progress text-progress-foreground shadow-xs hover:bg-progress/90 dark:hover:bg-progress/80 focus-visible:ring-progress/20 dark:focus-visible:ring-progress/40",
 

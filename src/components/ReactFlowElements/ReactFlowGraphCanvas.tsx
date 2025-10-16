@@ -5,11 +5,12 @@ import { useJsonState } from "@/hooks/useJsonState";
 import { Button } from "../ui/button";
 import PerformanceDebugger from "../elements/PerformanceDebugger";
 import { JsonNode } from "../nodes/JsonNode";
-import { detectEnhancedType } from "@/lib/utitlityTypeDetectors";
 import { ReactFlowNode } from "@/types/JsonNodeTypes";
 import { SearchMatch } from "@/types/Search";
 import { useNodeLayout } from "@/hooks/Reactflow/useNodeLayout";
-import { EnhancedSearchPanel } from "../Search/SearchPannel";
+
+import ControlsNav from "./ControlsNav";
+import { JsonSearchCommand } from "../elements/JsonSearchCommand";
 
 
 export const ReactFlowGraphCanvas = ({ jsonTab }: { jsonTab: JsonTab }) => {
@@ -125,73 +126,7 @@ export const ReactFlowGraphCanvas = ({ jsonTab }: { jsonTab: JsonTab }) => {
     handleFitView();
   }
 
-  // Search handlers
-  const handleSearchResults = useCallback((results: SearchMatch[]) => {
-    setSearchResults(results);
-  }, []);
-
-  const handleHighlightedNodes = useCallback((nodeIds: Set<string>) => {
-    setHighlightedNodes(nodeIds);
-  }, []);
-
-  const handleClearSearch = useCallback(() => {
-    setSearchResults([]);
-    setHighlightedNodes(new Set());
-  }, []);
-
-  const handleZoomToNode = useCallback((nodeId: string) => {
-    if (reactFlowInstance) {
-      reactFlowInstance.fitView({
-        nodes: [{ id: nodeId }],
-        duration: 600,
-        padding: 0.3,
-      });
-    }
-  }, [reactFlowInstance]);
-
-  const handleExpandToNode = useCallback((path: string) => {
-    const pathParts = path.split('.').filter(part => part !== 'root');
-    if (jsonData === null) return;
-
-    let currentPath = 'root';
-    let currentData: JsonValue = jsonData;
-    
-    const expandPath = async (index: number) => {
-      if (index >= pathParts.length) return;
-      
-      const currentPart = pathParts[index];
-      currentPath = `${currentPath}.${currentPart}`;
-      
-      const canAccessProperty = (data: JsonValue, key: string): data is JsonObject | JsonArray => {
-        if (data === null) return false;
-        if (typeof data === 'object') {
-          if (Array.isArray(data)) {
-            const index = parseInt(key, 10);
-            return !isNaN(index) && index >= 0 && index < data.length;
-          } else {
-            return key in data;
-          }
-        }
-        return false;
-      };
-
-      if (canAccessProperty(currentData, currentPart)) {
-        const nextData = Array.isArray(currentData) 
-          ? currentData[parseInt(currentPart, 10)]
-          : (currentData as JsonObject)[currentPart];
-        
-        if (nextData !== undefined) {
-          const nodeType = detectEnhancedType(nextData);
-          addProcessedChildNode(nextData, currentPath.replace(`.${currentPart}`, ''), currentPart, nodeType);
-          currentData = nextData;
-          setTimeout(() => expandPath(index + 1), 300);
-        }
-      }
-    };
-    
-    expandPath(0);
-  }, [jsonData, addProcessedChildNode]);
-
+  
   // Enhanced nodes with search highlighting
   const enhancedNodes = useMemo(() => {
     if (!nodes.length) return [];
@@ -222,9 +157,10 @@ export const ReactFlowGraphCanvas = ({ jsonTab }: { jsonTab: JsonTab }) => {
   }, [nodes, searchResults, highlightedNodes, handleNodeExpand]);
 
   return (
-    <div ref={containerRef} className="h-[100vh] w-[100vw] relative">
+    <div ref={containerRef} className="h-screen w-screen relative bg-red-400">
       <ReactFlow
         colorMode="dark"
+        className="min-h-screen w-screen"
         nodes={enhancedNodes}
         edges={edges}
         onNodesChange={onNodesChange}
@@ -250,42 +186,18 @@ export const ReactFlowGraphCanvas = ({ jsonTab }: { jsonTab: JsonTab }) => {
         }}
       >
      
-     <EnhancedSearchPanel
-  jsonData={jsonData}
-  onSearchResults={handleSearchResults}
-  onHighlightedNodes={handleHighlightedNodes}  
-  onClearSearch={handleClearSearch}
-  onZoomToNode={handleZoomToNode}
-/>
-        {/* Control Buttons */}
-        <div className="fixed top-5 right-5 z-50 flex gap-2">
-          <Button 
-            onClick={handleFitView}
-            variant="outline"
-            size="sm"
-            disabled={isLayoutAnimating}
-          >
-            {isLayoutAnimating ? "⏳" : "🔍"} Fit View
-          </Button>
-          <Button 
-            onClick={handleReLayout}
-            variant="outline"
-            size="sm"
-            disabled={isLayoutAnimating}
-          >
-            {isLayoutAnimating ? "🔄 Arranging..." : "📐 Arrange"}
-          </Button>
-          <Button 
-            onClick={handleJsonRemove} 
-            variant="destructive"
-            size="sm"
-          >
-            🗑️ Clear
-          </Button>
-        </div>
+    
+<JsonSearchCommand jsonData={jsonData} />
+
+    
+      <ControlsNav 
+        handleFitView={handleFitView}
+        handleReLayout={handleReLayout}
+        handleJsonRemove={handleJsonRemove}
+        isLayoutAnimating={isLayoutAnimating}
+      />
 
         <Background variant={BackgroundVariant.Dots} gap={30} />
-        <Controls position="bottom-right" />
       </ReactFlow>
 
       {isLayoutAnimating && (
