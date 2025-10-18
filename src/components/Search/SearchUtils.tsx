@@ -1,5 +1,5 @@
 import { ResultDetailsProps, SearchFiltersProps, SearchOptions, SearchResult, SearchResultsProps } from "@/types/Search";
-import { BarChart3, CaseSensitive, Copy, ExternalLink, FileText, Key, MapPin, MessageSquare, Search, Type, X } from "lucide-react";
+import { BarChart3, CaseSensitive, Check, Copy, ExternalLink, FileText, Key, MapPin, MessageSquare, Search, Type, X } from "lucide-react";
 import { useCallback, useId, useState } from "react";
 import { Checkbox } from "../ui/checkbox";
 import { Label } from "../ui/label";
@@ -12,9 +12,6 @@ import { ScrollArea } from "../ui/scroll-area";
 import { Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle } from "../ui/drawer";
 
 
-
-
-// types
 
 // utitlities
 
@@ -142,15 +139,8 @@ import { Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle } f
           <div className="p-3 bg-muted rounded-lg font-mono text-sm">
             {highlightMatches(result.fullPath, searchQuery)}
           </div>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => copyToClipboard(result.fullPath)}
-            className="flex items-center gap-2"
-          >
-            <Copy className="h-3 w-3" />
-            Copy Path
-          </Button>
+      
+            <CopyButton text={result.fullPath} />
         </div>
   
         {/* Value Preview */}
@@ -222,7 +212,7 @@ import { Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle } f
           >
             <DialogHeader>
               <DialogTitle id="result-details-title">
-                Search Result Details
+                Result for "{searchQuery}"
               </DialogTitle>
        
             </DialogHeader>
@@ -238,7 +228,7 @@ import { Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle } f
       <Drawer open={isOpen} onOpenChange={onClose}>
         <DrawerContent>
           <DrawerHeader className="text-left">
-            <DrawerTitle>Search Result Details</DrawerTitle>
+            <DrawerTitle>Result for "{searchQuery}"</DrawerTitle>
          
           </DrawerHeader>
           <ScrollArea className="px-4 max-h-[70vh]">
@@ -251,6 +241,43 @@ import { Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle } f
     );
   };
   
+
+
+  
+const CopyButton   = ({text} :  { text : string }) => {
+  // State to track if the copy animation is active
+  const [copied, setCopied] = useState(false);
+
+  // Function to copy text to clipboard
+  const copyToClipboard = (text : string) => {
+    navigator.clipboard.writeText(text);
+    setCopied(true); // Trigger animation
+    setTimeout(() => setCopied(false), 1500); 
+  };
+
+  return (
+    <Button
+      variant="outline"
+      size="sm"
+      onClick={() => copyToClipboard(text)}
+      className={`flex items-center gap-2 transition-all duration-300 ${
+        copied ? " border-green-700 border-2" : ""
+      }`}
+    >
+      {/* Icon changes with animation */}
+      {copied ? (
+        <Check className="h-3 w-3 animate-scale" />
+      ) : (
+        <Copy className="h-3 w-3" />
+      )}
+      {/* Text changes smoothly */}
+      <span className={`transition-opacity duration-300 ${copied ? "opacity-80" : "opacity-100"}`}>
+        {copied ? "Copied!" : "Copy Path"}
+      </span>
+    </Button>
+  );
+}
+
 
 
 
@@ -296,12 +323,14 @@ export const SearchFilters = ({ options, onOptionChange }: SearchFiltersProps) =
 
 
   return (
-    <div className="space-y-2 py-4 px-2 border-b">      
+    <div className="flex flex-col gap-2 md:py-4 py-2 px-2 border-b">      
       <div className="grid grid-cols-4 gap-2">
         {filterItems.map((item) => (
           <div
             key={`${id}-${item.key}`}
             className="relative flex cursor-pointer flex-col gap-3 rounded-md border border-input p-2 shadow-xs outline-none transition-colors hover:border-primary/30 has-[[data-state=checked]]:border-primary/50 has-[[data-state=checked]]:bg-primary/5"
+            aria-checked={options[item.key] ?? item.defaultChecked}
+            title={item.description}
           >
             <div className="flex justify-between gap-2">
               <Checkbox
@@ -310,19 +339,19 @@ export const SearchFilters = ({ options, onOptionChange }: SearchFiltersProps) =
                 onCheckedChange={(checked) => 
                   handleCheckboxChange(item.key, checked === true)
                 }
-                className="order-1 after:absolute after:inset-0"
+                className="order-1 after:absolute after:inset-0 "
               />
-              <item.Icon className="opacity-60" size={16} aria-hidden="true" />
+              <item.Icon className="opacity-60 size-4"  aria-hidden="true" />
             </div>
             
-            <div className="space-y-1">
+            <div className="md:flex hidden flex-col gap-2">
               <Label 
                 htmlFor={`${id}-${item.key}`}
-                className="text-sm font-medium cursor-pointer"
+                className="md:text-sm text-xs font-medium cursor-pointer"
               >
                 {item.label}
               </Label>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs text-muted-foreground md:flex hidden">
                 {item.description}
               </p>
             </div>
@@ -343,11 +372,7 @@ export const SearchFilters = ({ options, onOptionChange }: SearchFiltersProps) =
 export const SearchResults = ({ searchResults, searchQuery }: SearchResultsProps) => {
   const [selectedResult, setSelectedResult] = useState<SearchResult | null>(null);
   const [detailsOpen, setDetailsOpen] = useState(false);
-  const copyToClipboard = useCallback((text: string) => {
-    navigator.clipboard.writeText(text);
-  }, []);
-
-
+ 
   const handleResultSelect = (result: SearchResult) => {
     setSelectedResult(result);
     setDetailsOpen(true);
@@ -368,7 +393,7 @@ export const SearchResults = ({ searchResults, searchQuery }: SearchResultsProps
       <div 
         role="listbox" 
         aria-label="Search results" 
-        className="space-y-2"
+        className="flex flex-col"
       >
         {searchResults.map((result, index) => (
           <div
@@ -383,7 +408,7 @@ export const SearchResults = ({ searchResults, searchQuery }: SearchResultsProps
                 handleResultSelect(result);
               }
             }}
-            className="flex flex-col gap-3 p-4 cursor-pointer border rounded-lg hover:border-primary/50 hover:bg-accent/50 transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+            className="flex flex-col gap-2 px-2 py-1  cursor-pointer border-b  hover:border-primary/50 hover:bg-accent/50 transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
             aria-label={`Search result: ${result.key} with ${(result.matchScore * 100).toFixed(0)}% match score`}
           >
             {/* Header */}

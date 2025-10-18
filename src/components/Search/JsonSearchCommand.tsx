@@ -85,7 +85,7 @@ export const JsonSearchCommand: React.FC<JsonSearchCommandProps> = ({
 
 
       
-          <CommandDialog  open={searchOpen} onOpenChange={setSearchOpen} className="min-w-[80vw] ">
+          <CommandDialog  open={searchOpen} onOpenChange={setSearchOpen} className=" min-w-[80vw]">
 
     <CommandInput
             placeholder="Search keys, values, paths, or types..."
@@ -101,7 +101,7 @@ export const JsonSearchCommand: React.FC<JsonSearchCommandProps> = ({
     
     
     
-  <CommandList className="max-h-[60vh] ">
+  <CommandList className="md:max-h-[60vh] max-h-[30vh] ">
 
 
 
