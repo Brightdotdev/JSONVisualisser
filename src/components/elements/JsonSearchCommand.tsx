@@ -3,10 +3,16 @@ import { useJsonSearch } from '@/hooks/useJsonSearch';
 import { SearchOptions, SearchResult } from '@/types/Search';
 import React, { JSX, useCallback, useEffect, useId, useState } from 'react';
 import { Button } from '../ui/button';
-import { BarChart3, CaseSensitive, Key, MessageSquare, Search } from 'lucide-react';
-import { CommandDialog, CommandEmpty, CommandInput, CommandList } from '../ui/command';
+import { BarChart3, CaseSensitive, Copy, ExternalLink, FileText, Focus, Key, MapPin, MessageSquare, Search, Type, X } from 'lucide-react';
+import { CommandDialog, CommandEmpty, CommandInput, CommandItem, CommandList, CommandSeparator } from '../ui/command';
 import { Checkbox } from '../ui/checkbox';
 import { Label } from '../ui/label';
+import { Badge } from '../ui/badge';
+import { useMediaQuery } from '@/hooks/useMediaQuery';
+import { Dialog, DialogDescription, DialogHeader, DialogTitle, DialogContent } from '../ui/dialog';
+import { Separator } from '../ui/separator';
+import { ScrollArea } from '../ui/scroll-area';
+import { Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle } from '../ui/drawer';
 
 
 interface JsonSearchCommandProps {
@@ -105,10 +111,386 @@ const SearchFilters = ({ options, onOptionChange }: SearchFiltersProps) => {
 
 
 
+interface SearchResultsProps {
+  searchResults: SearchResult[];
+  searchQuery: string;
+}
 
-export const JsonSearchCommand: React.FC<JsonSearchCommandProps> = ({
-  data,
-  onResultClick}) => {
+interface ResultDetailsProps {
+  result: SearchResult | null;
+  searchQuery: string;
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+const ResultDetails = ({ result, searchQuery, isOpen, onClose }: ResultDetailsProps) => {
+  const isDesktop = useMediaQuery('(min-width: 768px)');
+  
+  const getScoreColor = (score: number) => {
+    if (score >= 0.9) return "text-green-600 bg-green-50 border-green-200";
+    if (score >= 0.7) return "text-blue-600 bg-blue-50 border-blue-200";
+    if (score >= 0.4) return "text-yellow-600 bg-yellow-50 border-yellow-200";
+    return "text-gray-600 bg-gray-50 border-gray-200";
+  };
+
+  const getValuePreview = (value: any): string => {
+    if (value === null) return "null";
+    if (typeof value === "object") {
+      if (Array.isArray(value)) return `Array with ${value.length} items`;
+      return `Object with ${Object.keys(value || {}).length} properties`;
+    }
+    if (typeof value === "string") return value.length > 200 ? `${value.slice(0, 200)}...` : value;
+    return String(value);
+  };
+
+  const highlightMatches = (text: string, term: string) => {
+    if (!term) return text;
+    const escapedTerm = term.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const regex = new RegExp(`(${escapedTerm})`, "ig");
+    const parts = String(text).split(regex);
+    return parts.map((part, i) =>
+      regex.test(part) ? (
+        <mark key={i} className="bg-alt1 px-0.5 rounded" aria-label="matched text">
+          {part}
+        </mark>
+      ) : (
+        <span key={i}>{part}</span>
+      )
+    );
+  };
+
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text);
+  };
+
+  const content = result ? (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-start justify-between">
+        <div className="space-y-3 flex-1">
+          <div className="flex items-center gap-3">
+            {result.isKeyMatch && <Key className="h-5 w-5 text-blue-600" aria-hidden="true" />}
+            {result.isValueMatch && <MessageSquare className="h-5 w-5 text-green-600" aria-hidden="true" />}
+            <DialogTitle className="text-lg font-semibold">
+              {result.key}
+            </DialogTitle>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <Badge variant="secondary" className={getScoreColor(result.matchScore)}>
+              Match: {(result.matchScore * 100).toFixed(0)}%
+            </Badge>
+            <Badge variant="outline" className="flex items-center gap-1">
+              <Type className="h-3 w-3" />
+              {result.dataType}
+            </Badge>
+            {result.isKeyMatch && (
+              <Badge variant="outline" className="bg-blue-50 text-blue-700">
+                Key Match
+              </Badge>
+            )}
+            {result.isValueMatch && (
+              <Badge variant="outline" className="bg-green-50 text-green-700">
+                Value Match
+              </Badge>
+            )}
+          </div>
+        </div>
+        {isDesktop && (
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onClose}
+            aria-label="Close details"
+          >
+            <X className="h-4 w-4" />
+          </Button>
+        )}
+      </div>
+
+      <Separator />
+
+      {/* Path Information */}
+      <div className="space-y-3">
+        <h3 className="font-medium flex items-center gap-2">
+          <MapPin className="h-4 w-4" />
+          JSON Path
+        </h3>
+        <div className="p-3 bg-muted rounded-lg font-mono text-sm">
+          {highlightMatches(result.fullPath, searchQuery)}
+        </div>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => copyToClipboard(result.fullPath)}
+          className="flex items-center gap-2"
+        >
+          <Copy className="h-3 w-3" />
+          Copy Path
+        </Button>
+      </div>
+
+      {/* Value Preview */}
+      <div className="space-y-3">
+        <h3 className="font-medium flex items-center gap-2">
+          <FileText className="h-4 w-4" />
+          Value
+        </h3>
+        <ScrollArea className="h-32">
+          <div className="p-3 bg-muted rounded-lg font-mono text-sm whitespace-pre-wrap">
+            {typeof result.value === 'string' 
+              ? highlightMatches(result.value, searchQuery)
+              : getValuePreview(result.value)
+            }
+          </div>
+        </ScrollArea>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => copyToClipboard(String(result.value))}
+          className="flex items-center gap-2"
+        >
+          <Copy className="h-3 w-3" />
+          Copy Value
+        </Button>
+      </div>
+
+      {/* Metadata */}
+      <div className="space-y-3">
+        <h3 className="font-medium flex items-center gap-2">
+          <BarChart3 className="h-4 w-4" />
+          Match Details
+        </h3>
+        <div className="grid grid-cols-2 gap-4 text-sm">
+          <div>
+            <span className="font-medium">Match Type:</span>
+            <div className="mt-1 space-y-1">
+              {result.isKeyMatch && (
+                <Badge variant="outline" className="text-xs">
+                  Key
+                </Badge>
+              )}
+              {result.isValueMatch && (
+                <Badge variant="outline" className="text-xs">
+                  Value
+                </Badge>
+              )}
+            </div>
+          </div>
+          <div>
+            <span className="font-medium">Data Type:</span>
+            <div className="mt-1">
+              <Badge variant="outline" className="text-xs">
+                {result.dataType}
+              </Badge>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  ) : null;
+
+  if (isDesktop) {
+    return (
+      <Dialog open={isOpen} onOpenChange={onClose}>
+        <DialogContent 
+          className="max-w-2xl max-h-[80vh]" 
+          aria-labelledby="result-details-title"
+        >
+          <DialogHeader>
+            <DialogTitle id="result-details-title">
+              Search Result Details
+            </DialogTitle>
+            <DialogDescription>
+              Detailed information about the selected match
+            </DialogDescription>
+          </DialogHeader>
+          <ScrollArea className="flex-1 px-1">
+            {content}
+          </ScrollArea>
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
+  return (
+    <Drawer open={isOpen} onOpenChange={onClose}>
+      <DrawerContent>
+        <DrawerHeader className="text-left">
+          <DrawerTitle>Search Result Details</DrawerTitle>
+          <DrawerDescription>
+            Detailed information about the selected match
+          </DrawerDescription>
+        </DrawerHeader>
+        <ScrollArea className="px-4 max-h-[60vh]">
+          <div className="pb-4">
+            {content}
+          </div>
+        </ScrollArea>
+      </DrawerContent>
+    </Drawer>
+  );
+};
+
+export const SearchResults = ({ searchResults, searchQuery }: SearchResultsProps) => {
+  const [selectedResult, setSelectedResult] = useState<SearchResult | null>(null);
+  const [detailsOpen, setDetailsOpen] = useState(false);
+
+  const getScoreColor = (score: number) => {
+    if (score >= 0.9) return "text-green-600 bg-green-50 border-green-200";
+    if (score >= 0.7) return "text-blue-600 bg-blue-50 border-blue-200";
+    if (score >= 0.4) return "text-yellow-600 bg-yellow-50 border-yellow-200";
+    return "text-gray-600 bg-gray-50 border-gray-200";
+  };
+
+  const getValuePreview = (value: any): string => {
+    if (value === null) return "null";
+    if (typeof value === "object") {
+      if (Array.isArray(value)) return `Array[${value.length}]`;
+      return `Object{${Object.keys(value || {}).length}}`;
+    }
+    if (typeof value === "string") return value.length > 120 ? `${value.slice(0, 120)}...` : value;
+    return String(value);
+  };
+
+  const highlightMatches = (text: string, term: string) => {
+    if (!term) return text;
+    const escapedTerm = term.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const regex = new RegExp(`(${escapedTerm})`, "ig");
+    const parts = String(text).split(regex);
+    return parts.map((part, i) =>
+      regex.test(part) ? (
+        <mark 
+          key={i} 
+          className="bg-alt1 px-0.5 rounded"
+          aria-label="matched text"
+        >
+          {part}
+        </mark>
+      ) : (
+        <span key={i}>{part}</span>
+      )
+    );
+  };
+
+  const handleResultSelect = (result: SearchResult) => {
+    setSelectedResult(result);
+    setDetailsOpen(true);
+  };
+
+  const handleCloseDetails = () => {
+    setDetailsOpen(false);
+    setSelectedResult(null);
+  };
+
+  const copyToClipboard = useCallback((text: string) => {
+    navigator.clipboard.writeText(text);
+  }, []);
+
+  if (searchResults.length === 0) {
+    return null;
+  }
+
+  return (
+    <>
+      <div 
+        role="listbox" 
+        aria-label="Search results" 
+        className="space-y-2"
+      >
+        {searchResults.map((result, index) => (
+          <div
+            key={`${result.fullPath}-${index}`}
+            role="option"
+            aria-selected={selectedResult?.fullPath === result.fullPath}
+            tabIndex={0}
+            onClick={() => handleResultSelect(result)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                handleResultSelect(result);
+              }
+            }}
+            className="flex flex-col gap-3 p-4 cursor-pointer border rounded-lg hover:border-primary/50 hover:bg-accent/50 transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+            aria-label={`Search result: ${result.key} with ${(result.matchScore * 100).toFixed(0)}% match score`}
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between w-full gap-3">
+              <div className="flex items-center gap-3 min-w-0 flex-1">
+                <div className="flex items-center gap-2 min-w-0 flex-1">
+                  {result.isKeyMatch && (
+                    <Key 
+                      className="h-4 w-4 text-blue-600 flex-shrink-0" 
+                      aria-label="Key match"
+                    />
+                  )}
+                  {result.isValueMatch && (
+                    <MessageSquare 
+                      className="h-4 w-4 text-green-600 flex-shrink-0" 
+                      aria-label="Value match"
+                    />
+                  )}
+                  <div className="min-w-0 flex-1">
+                    <div 
+                      className="font-medium truncate text-base"
+                      aria-label={`Key: ${result.key}`}
+                    >
+                      {highlightMatches(result.key, searchQuery)}
+                    </div>
+                    <div 
+                      className="text-sm text-muted-foreground truncate font-mono mt-1"
+                      aria-label={`Path: ${result.path}`}
+                    >
+                      {highlightMatches(result.fullPath, searchQuery)}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 flex-shrink-0">
+                <Badge 
+                  variant="secondary" 
+                  className={`text-xs border ${getScoreColor(result.matchScore)}`}
+                  aria-label={`Match score: ${(result.matchScore * 100).toFixed(0)} percent`}
+                >
+                  {(result.matchScore * 100).toFixed(0)}%
+                </Badge>
+                <ExternalLink 
+                  className="h-3 w-3 text-muted-foreground" 
+                  aria-hidden="true"
+                />
+              </div>
+            </div>
+
+            {/* Value Preview */}
+            <div 
+              className="text-sm text-muted-foreground break-words"
+              aria-label={`Value preview: ${getValuePreview(result.value)}`}
+            >
+              {getValuePreview(result.value)}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Result Details Modal/Drawer */}
+      <ResultDetails
+        result={selectedResult}
+        searchQuery={searchQuery}
+        isOpen={detailsOpen}
+        onClose={handleCloseDetails}
+      />
+    </>
+  );
+};
+
+
+
+
+interface JsonSearchCommandProps {
+  data: any;
+}
+
+export const JsonSearchCommand: React.FC<JsonSearchCommandProps> = ({ data }) => {
   const {
     searchResults,
     search,
@@ -116,14 +498,15 @@ export const JsonSearchCommand: React.FC<JsonSearchCommandProps> = ({
     isSearching,
     options,
     updateOptions,
-    dataTypes
   } = useJsonSearch(data);
+  
   const [searchOpen, setSearchOpen] = useState(false);
+  const isDesktop = useMediaQuery('(min-width: 768px)');
 
   const skeletonItems = Array.from({ length: 6 }, (_, i) => i);
-    useEffect(() => {
+
+  useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      // Toggle search with Cmd/Ctrl + K
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
         e.preventDefault();
         setSearchOpen((s) => !s);
@@ -133,213 +516,97 @@ export const JsonSearchCommand: React.FC<JsonSearchCommandProps> = ({
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
+  // Search content component to avoid duplication
+  const SearchContent = () => (
+    <>
+      <div className="px-4 pt-4">
+        <CommandInput
+          placeholder="Search keys, values, paths, or types..."
+          value={searchQuery}
+          onValueChange={(value: string) => search(value)}
+        />
+      </div>
 
+      <SearchFilters 
+        options={options}
+        onOptionChange={updateOptions}
+      />
+      
+      <div className="flex-1 overflow-hidden">
+        <CommandList className="h-full">
+          {isSearching && (
+            <CommandEmpty className="py-4">
+              <div className="space-y-2">
+                {skeletonItems.map((i) => (
+                  <div key={i} className="h-10 rounded bg-muted/40 animate-pulse" />
+                ))}
+              </div>
+            </CommandEmpty>
+          )}
 
+          {!isSearching && !searchQuery && (
+            <CommandEmpty className="py-8 text-center">
+              <div className="flex flex-col items-center gap-2">
+                <Search className="h-8 w-8 text-muted-foreground" />
+                <p>Start typing to search JSON</p>
+                <p className="text-sm text-muted-foreground">Search keys, values, paths, and types</p>
+              </div>
+            </CommandEmpty>
+          )}
 
-  const highlightMatch = (text: string, query: string): JSX.Element => {
-    if (!query) return <>{text}</>;
-    
-    const regex = new RegExp(`(${query})`, 'gi');
-    const parts = text.split(regex);
-    
-    return (
-      <>
-        {parts.map((part, index) =>
-          regex.test(part) ? (
-            <mark key={index} className=" px-1 rounded">
-              {part}
-            </mark>
-          ) : (
-            part
-          )
-        )}
-      </>
-    );
-  };
+          {!isSearching && searchQuery && searchResults.length === 0 && (
+            <CommandEmpty className="py-8 text-center">
+              <div className="flex flex-col items-center gap-2">
+                <Search className="h-8 w-8 text-muted-foreground" />
+                <p>No results found for <strong>{searchQuery}</strong></p>
+              </div>
+            </CommandEmpty>
+          )}
 
-
-    const getScoreColor = (score: number) => {
-      if (score >= 0.9) return "text-green-600 bg-green-50 border-green-200";
-      if (score >= 0.7) return "text-blue-600 bg-blue-50 border-blue-200";
-      if (score >= 0.4) return "text-yellow-600 bg-yellow-50 border-yellow-200";
-      return "text-gray-600 bg-gray-50 border-gray-200";
-    };
-  
-    // Create a preview for a value; keep it short
-    const getValuePreview = (value: any): string => {
-      if (value === null) return "null";
-      if (typeof value === "object") {
-        if (Array.isArray(value)) return `Array[${value.length}]`;
-        return `Object{${Object.keys(value || {}).length}}`;
-      }
-      if (typeof value === "string") return value.length > 120 ? `${value.slice(0, 120)}...` : value;
-      return String(value);
-    };
-  
-    // Highlight matched substring(s) in a piece of text.
-    // Returns React nodes with <mark> elements around matches.
-    const highlightMatches = (text: string, term: string) => {
-      if (!term) return text;
-      const t = term.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); // escape regex
-      const re = new RegExp(`(${t})`, "ig");
-      const parts = String(text).split(re);
-      return parts.map((part, i) =>
-        re.test(part) ? (
-          <mark key={i} className="bg-primary/20 px-0.5 rounded">
-            {part}
-          </mark>
-        ) : (
-          <span key={i}>{part}</span>
-        )
-      );
-    };
-  
-    
-    
-  
-    // Copy helpers
-    const copyToClipboard = useCallback((text: string) => {
-      navigator.clipboard.writeText(text);
-    }, []);
-  
-
-    
+          {(searchQuery && searchResults.length > 0 && !isSearching) && (
+            <SearchResults searchQuery={searchQuery} searchResults={searchResults} />
+          )}
+        </CommandList>
+      </div>
+    </>
+  );
 
   return (
     <>
-  
-      {
-        !searchOpen && (
-               <Button
-        variant="outline"
-        size="sm"
-        onClick={() => setSearchOpen(true)}
-        className="flex items-center gap-2 fixed top-5 left-5 z-50 shadow-sm"
-        aria-label="Open JSON search (Cmd/Ctrl+K)"
-      >
-        <Search className="size-4" />
-        <span className="hidden sm:inline">Search JSON</span>
-        <kbd className="hidden sm:inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground">
-          <span className="text-xs">⌘</span>K
-        </kbd>
-      </Button>
-        )
-      }
+      {!searchOpen && (
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setSearchOpen(true)}
+          className="flex items-center gap-2 fixed top-5 left-5 z-50 shadow-sm"
+          aria-label="Open JSON search (Cmd/Ctrl+K)"
+        >
+          <Search className="size-4" />
+          <span className="hidden sm:inline">Search JSON</span>
+          <kbd className="hidden sm:inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground">
+            <span className="text-xs">⌘</span>K
+          </kbd>
+        </Button>
+      )}
 
-
-      {/* Search Options */}
-     
-
-
-      
-          <CommandDialog  open={searchOpen} onOpenChange={setSearchOpen} className="min-w-[80vw] ">
-
-    <CommandInput
-            placeholder="Search keys, values, paths, or types..."
-            value={searchQuery}
-            onValueChange={(value: string) => search(value)}
-          />
-
-    
-      <SearchFilters 
-    options={options}
-    onOptionChange={updateOptions}
-  />
-    
-    
-    
-  <CommandList className="max-h-[60vh] ">
-
-
-
-    {isSearching && (
-    <CommandEmpty className="py-4">
-      <div className="space-y-2">
-          {skeletonItems.map((i) => (
-      <div key={i} className="h-10 rounded bg-muted/40 animate-pulse" />
-    ))}
-  </div>
-</CommandEmpty>
-  )}
-
-
-{!isSearching && !searchQuery && (
-  <CommandEmpty className="py-8 text-center">
-    <div className="flex flex-col items-center gap-2">
-      <Search className="h-8 w-8 text-muted-foreground" />
-      <p>Start typing to search JSON</p>
-      <p className="text-sm text-muted-foreground">Search keys, values, paths, and types</p>
-    </div>
-    
-  </CommandEmpty>
-)}
-      {!isSearching && searchQuery && searchResults.length === 0 && (
-                  <CommandEmpty className="py-8 text-center">
-                    <div className="flex flex-col items-center gap-2">
-                      <Search className="h-8 w-8 text-muted-foreground" />
-                      <p>No results found for <strong>{searchQuery}</strong></p>
-                    </div>
-                  </CommandEmpty>
-        )}
-
-      {/* Results */}
-      <div className="">
-        <div className="flex justify-between items-center mb-2">
-          <h3 className="font-semibold">
-            Results ({searchResults.length})
-          </h3>
-    
-        </div>
-
-
-
-        <div className="space-y-2">
-          {searchResults.map((result, index) => (
-            <div
-              key={`${result.fullPath}-${index}`}
-              className="p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors"
-              onClick={() => onResultClick?.(result)}
-            >
-              <div className="flex justify-between items-start mb-2">
-                <div className="font-mono text-sm">
-                  {highlightMatch(result.fullPath, searchQuery)}
-                </div>
-                <div className="flex items-center space-x-2">
-                  <span className={`px-2 py-1 rounded text-xs ${
-                    result.isKeyMatch 
-                      ? ' text-blue-800' 
-                      : ' text-green-800'
-                  }`}>
-                    {result.isKeyMatch ? 'Key Match' : 'Value Match'}
-                  </span>
-                  <span className="px-2 py-1 rounded text-xs">
-                    {result.dataType}
-                  </span>
-                  <span className="text-xs">
-                    Score: {result.matchScore.toFixed(2)}
-                  </span>
-                </div>
-              </div>
-              
-              <div className="text-sm text-gray-600">
-                <strong>Value:</strong> {String(result.value)}
-              </div>
-              
-              {result.path && (
-                <div className="text-xs mt-1">
-                  Path: {result.path}
-                </div>
-              )}
+      {/* Desktop: CommandDialog */}
+      {isDesktop ? (
+        <CommandDialog open={searchOpen} onOpenChange={setSearchOpen} className="min-w-[80vw] max-w-4xl">
+          <SearchContent />
+        </CommandDialog>
+      ) : (
+        /* Mobile: Drawer */
+        <Drawer open={searchOpen} onOpenChange={setSearchOpen}>
+          <DrawerContent className="max-h-[85vh]">
+            <DrawerHeader className="pb-3">
+              <DrawerTitle className="text-center">Search JSON</DrawerTitle>
+            </DrawerHeader>
+            <div className="flex flex-col h-full">
+              <SearchContent />
             </div>
-          ))}
-        </div>
-      </div>
-  </CommandList>
-
-          </CommandDialog>
-
-
-
+          </DrawerContent>
+        </Drawer>
+      )}
     </>
   );
-};
+}
