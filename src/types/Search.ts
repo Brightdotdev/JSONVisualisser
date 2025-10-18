@@ -18,3 +18,26 @@ export interface SearchOptions {
   searchInValues?: boolean;
   minMatchScore?: number;
 }
+
+
+export interface SearchFiltersProps {
+  options: {
+    caseSensitive?: boolean;
+    fuzzyMatch?: boolean;
+    searchInKeys?: boolean;
+    searchInValues?: boolean;
+  };
+  onOptionChange: (newOptions: Partial<SearchOptions>) => void;
+}
+
+export interface SearchResultsProps {
+  searchResults: SearchResult[];
+  searchQuery: string;
+}
+
+export interface ResultDetailsProps {
+  result: SearchResult | null;
+  searchQuery: string;
+  isOpen: boolean;
+  onClose: () => void;
+}

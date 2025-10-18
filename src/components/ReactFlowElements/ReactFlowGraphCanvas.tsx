@@ -10,7 +10,7 @@ import { ReactFlowNode } from "@/types/JsonNodeTypes";
 import { useNodeLayout } from "@/hooks/Reactflow/useNodeLayout";
 
 import ControlsNav from "./ControlsNav";
-import { JsonSearchCommand } from "../elements/JsonSearchCommand";
+import { JsonSearchCommand } from "../Search/JsonSearchCommand";
 
 
 
@@ -31,13 +31,6 @@ export const ReactFlowGraphCanvas = ({ jsonTab }: { jsonTab: JsonTab }) => {
 
   const containerRef = useRef<HTMLDivElement>(null);
   
-  
-
-
-  // Search state
-  
-  const [highlightedNodes, setHighlightedNodes] = useState<Set<string>>(new Set());
-
   // Use hook state directly
   const [nodes, setNodes, onNodesChange] = useNodesState(currentNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>(currentEdges);
@@ -123,8 +116,9 @@ export const ReactFlowGraphCanvas = ({ jsonTab }: { jsonTab: JsonTab }) => {
     }
   }, [addProcessedChildNode, currentNodes, currentEdges, applyTreeLayout, reactFlowInstance, setNodes]);
 
-  const handleJsonRemove = () => {
+  const handleJsonRemove = async () => {
     removeJsonState();
+      await new Promise(resolve => setTimeout(resolve, 100));
     handleFitView();
   }
 
@@ -135,12 +129,8 @@ export const ReactFlowGraphCanvas = ({ jsonTab }: { jsonTab: JsonTab }) => {
 
     return nodes.map(node => {
 
+  
       
-      // Calculate if this node is an ancestor of any highlighted node
-      const isAncestorHighlighted = Array.from(highlightedNodes).some(highlightedId => 
-        highlightedId !== node.id && highlightedId.startsWith(node.id)
-      );
-
       return {
         ...node,
         data: {
@@ -151,7 +141,7 @@ export const ReactFlowGraphCanvas = ({ jsonTab }: { jsonTab: JsonTab }) => {
         }
       } as ReactFlowNode;
     });
-  }, [nodes, highlightedNodes, handleNodeExpand]);
+  }, [nodes, handleNodeExpand]);
 
   return (
     <div ref={containerRef} className="h-screen w-screen relative bg-red-400">

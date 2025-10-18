@@ -12,24 +12,26 @@ const ControlsNav = (
      handleJsonRemove: () => void, isLayoutAnimating: boolean }) => (
 
         
-      <div className="md:fixed top-5 right-5 z-50 flex gap-2">
+      <div className="fixed top-5 md:right-5 right-3 z-50 flex gap-2">
           <Button 
             onClick={handleFitView}
             variant="outline"
             className='rounded-xs px-2 py-1'
             size="sm"
+        title="fit json nodes in view"
             disabled={isLayoutAnimating}
           >
             {isLayoutAnimating ? <Hourglass className="mr-2 size-4" /> :<Focus />}
             
-            <>
+            <span className='md:flex hidden' > 
              Fit View
-            </>
+            </span>
           </Button>
           <Button 
             onClick={handleReLayout}
             variant="outline"
             className='rounded-xs px-2 py-1'
+        title="Arrannge json Nodes"
             size="sm"
             disabled={isLayoutAnimating}
           >
@@ -41,7 +43,9 @@ const ControlsNav = (
             : 
             <>
             <FaProjectDiagram />
+            <span className='md:flex hidden' > 
             Arange Nodes
+            </span>
             </>
             }
           </Button>
@@ -49,11 +53,13 @@ const ControlsNav = (
             onClick={handleJsonRemove} 
             variant="destructive"
             className='rounded-xs px-2 py-1'
-
+        title="Clear json Nodes"
             size="sm"
           >
             <Eraser />
+            <span className='md:flex hidden'> 
             Clear Nodes
+            </span>
           </Button>
         </div>
   )
