@@ -2,15 +2,17 @@ import { Background, BackgroundVariant, Controls, Edge, ReactFlow, useEdgesState
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ExtraDataTypes, JsonArray, JsonObject, JsonTab, JsonValue } from "@/types/JsonTypes";
 import { useJsonState } from "@/hooks/useJsonState";
-import { Button } from "../ui/button";
+
 import PerformanceDebugger from "../elements/PerformanceDebugger";
 import { JsonNode } from "../nodes/JsonNode";
 import { ReactFlowNode } from "@/types/JsonNodeTypes";
-import { SearchMatch } from "@/types/Search";
+
 import { useNodeLayout } from "@/hooks/Reactflow/useNodeLayout";
 
 import ControlsNav from "./ControlsNav";
 import { JsonSearchCommand } from "../elements/JsonSearchCommand";
+
+
 
 
 export const ReactFlowGraphCanvas = ({ jsonTab }: { jsonTab: JsonTab }) => {
@@ -33,7 +35,7 @@ export const ReactFlowGraphCanvas = ({ jsonTab }: { jsonTab: JsonTab }) => {
 
 
   // Search state
-  const [searchResults, setSearchResults] = useState<SearchMatch[]>([]);
+  
   const [highlightedNodes, setHighlightedNodes] = useState<Set<string>>(new Set());
 
   // Use hook state directly
@@ -132,9 +134,7 @@ export const ReactFlowGraphCanvas = ({ jsonTab }: { jsonTab: JsonTab }) => {
     if (!nodes.length) return [];
 
     return nodes.map(node => {
-      const nodeSearchResults = searchResults.filter(result => result.nodeId === node.id);
-      const searchMatches = nodeSearchResults.flatMap(result => result.matches);
-      const isHighlighted = highlightedNodes.has(node.id);
+
       
       // Calculate if this node is an ancestor of any highlighted node
       const isAncestorHighlighted = Array.from(highlightedNodes).some(highlightedId => 
@@ -147,14 +147,11 @@ export const ReactFlowGraphCanvas = ({ jsonTab }: { jsonTab: JsonTab }) => {
           ...node.data,
           processedJsonData: node.data.processedJsonData,
           onNodeExpand: handleNodeExpand,
-          isHighlighted,
-          isAncestorHighlighted,
-          searchMatches,
           isNewNode: node.data?.isNewNode || false
         }
       } as ReactFlowNode;
     });
-  }, [nodes, searchResults, highlightedNodes, handleNodeExpand]);
+  }, [nodes, highlightedNodes, handleNodeExpand]);
 
   return (
     <div ref={containerRef} className="h-screen w-screen relative bg-red-400">
@@ -187,7 +184,7 @@ export const ReactFlowGraphCanvas = ({ jsonTab }: { jsonTab: JsonTab }) => {
       >
      
     
-<JsonSearchCommand jsonData={jsonData} />
+<JsonSearchCommand data={jsonData} />
 
     
       <ControlsNav 

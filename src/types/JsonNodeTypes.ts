@@ -35,9 +35,6 @@ export const nodeTypes = {
 
 export type ReactFlowNode  = Node <{processedJsonData: LevelAnalysisResult, 
     onNodeExpand?: (nodeData: any, parentPath: string, nodeKey: string, nodeType: ExtraDataTypes) => void;
-      isHighlighted?: boolean;
-  isAncestorHighlighted?: boolean;
-  searchMatches?: string[];
   isNewNode?: boolean;
 }>
 
