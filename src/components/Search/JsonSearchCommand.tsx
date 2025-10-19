@@ -17,9 +17,7 @@ import { SearchFilters, SearchResults } from './SearchUtils';
 
 
 interface JsonSearchCommandProps {
-  data: any;
-  onResultClick?: (result: SearchResult) => void;
-
+  data: any
 }
 
 
@@ -29,8 +27,7 @@ interface JsonSearchCommandProps {
 
 
 export const JsonSearchCommand: React.FC<JsonSearchCommandProps> = ({
-  data,
-  onResultClick}) => {
+  data}) => {
   const {
     searchResults,
     search,
@@ -66,7 +63,7 @@ export const JsonSearchCommand: React.FC<JsonSearchCommandProps> = ({
         variant="outline"
         size="sm"
         onClick={() => setSearchOpen(true)}
-        className="flex items-center gap-2 fixed top-5 md:left-5 left-3 z-50 shadow-sm rounded-xs"
+        className="flex items-center gap-2 shadow-sm rounded-xs"
         title="Search In Your Json File"
         aria-label="Open JSON search (Cmd/Ctrl+K)"
       >

@@ -1,190 +1,220 @@
 import { Button } from "../ui/button";
+import { 
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "../ui/accordion";
 import { ReactFlowNode } from "@/types/JsonNodeTypes";
 import { Handle, NodeProps, Position } from "@xyflow/react";
-import { memo, useMemo, useEffect, useState } from "react";
+import { memo, useMemo } from "react";
+import { Copy } from "lucide-react";
 
-// Memoize the helper components too
-const RenderMetadata = memo(({ value }: { value: any }) => {
+const RenderMetadata = memo(({ value, path }: { value: any; path: string }) => {
   const isObject = value && typeof value === "object";
   const dataType = Array.isArray(value) ? "array" : typeof value;
   const keys = isObject ? Object.keys(value).length : "-";
   const depth = isObject ? 1 : 0;
 
   return (
-    <div className="space-y-1 text-xs text-muted-foreground">
-      <p>Data type: <span className="font-medium">{dataType}</span></p>
-      <p>Depth: <span className="font-medium">{depth}</span></p>
-      <p>Keys: <span className="font-medium">{keys}</span></p>
+    <div className="flex flex-col gap-1 text-xs text-muted-foreground">
+      <p className="flex gap-2 items-center justify-start text-sm text-foreground/80">
+        <span className="truncate">{path}</span>
+        <span
+          role="button"
+          className="p-1 rounded-md hover:bg-muted cursor-pointer transition-colors"
+          title="Copy Value Reference Path"
+          onClick={() => navigator.clipboard.writeText(path)}
+        >
+          <Copy size={14} />
+        </span>
+      </p>
+      <div className="flex gap-3 flex-wrap">
+        <p>Type: <span className="font-medium text-foreground">{dataType}</span></p>
+        {depth > 0 && isObject && (
+          <p>Depth: <span className="font-medium text-foreground">{depth}</span></p>
+        )}
+        {keys !== "-" && isObject && (
+          <p>Keys: <span className="font-medium text-foreground">{keys}</span></p>
+        )}
+      </div>
     </div>
   );
 });
 
-const RenderValue = memo(({ value }: { value: any }) => {
+const RenderValue = memo(({ value, path }: { value: any; path: string }) => {
   const isObject = value && typeof value === "object";
-
-  if (isObject) {
-    return (
-      <div className="space-y-2">
-        <RenderMetadata value={value} />
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-1">
-      <p className="break-all">{String(value)}</p>
-      <RenderMetadata value={value} />
-    </div>
-  );
-});
-
-// Memoize individual node items for better performance
-const NodeItem = memo(({ 
-  node, 
-  pathName, 
-  onNodeExpand
-}: { 
-  node: any;
-  pathName: string;
-  onNodeExpand: any;
-}) => {
-  const handleExpand = () => {
-    onNodeExpand?.(
-      node.metadata.jsonValue, 
-      pathName, 
-      node.key, 
-      node.metadata.dataType
-    );
-  };
-
-  return (
-    <div className='p-3 border rounded-md transition-all duration-300 border-border hover:bg-accent/50'>
-      {/* Node Info Row */}
-      <div className="flex justify-between items-start mb-2">
-        <div className="flex-1">
-          <p className='text-sm font-medium truncate'>
-            {node.key}
-            
-          </p>
-          <p className="text-xs text-muted-foreground">
-            Path: {node.path}
-          </p>
-        </div>
-        <div className="text-right">
-          <span className={`inline-block px-2 py-1 text-xs rounded-full ${
-            node.metadata.dataType === 'object' ? 'bg-blue-100 text-blue-800' :
-            node.metadata.dataType === 'array' ? 'bg-green-100 text-green-800' :
-            'bg-gray-100 text-gray-800'
-          }`}>
-            {node.metadata.dataType}
-          </span>
-        </div>
-      </div>
-
-      {/* Value Preview */}
-      <div className="mb-3">
-        <RenderValue value={node.metadata.jsonValue} />
-      </div>
-
-      
-      
-
-      {/* Expand Button for Objects/Arrays */}
-      {(node.metadata.dataType === "object" || node.metadata.dataType === "array") && (
-        <div className="flex justify-between items-center">
-          <div className="text-xs text-muted-foreground">
-            {node.metadata.childCount ?? 0} items
-          </div>
-          <Button 
-            size="sm" 
-            variant="outline" 
-            onClick={handleExpand}>
-            {node.metadata.dataType === "array" ? "Expand Array" : "Expand Object"}
-          </Button>
-        </div>
+      {!isObject && (
+        <p className="break-all text-sm text-foreground">
+          Value: <span className="font-medium">{String(value)}</span>
+        </p>
       )}
+      <RenderMetadata value={value} path={path} />
     </div>
   );
 });
 
-// Main JsonNode component with enhanced animations and search highlighting
+const NodeItem = memo(
+  ({
+    node,
+    pathName,
+    onNodeExpand,
+  }: {
+    node: any;
+    pathName: string;
+    onNodeExpand: any;
+  }) => {
+    const handleExpand = () => {
+      onNodeExpand?.(node.metadata.jsonValue, pathName, node.key, node.metadata.dataType);
+    };
+
+    const hasExpandableContent =
+      node.metadata.dataType === "object" || node.metadata.dataType === "array";
+    const itemCount = node.metadata.childCount ?? 0;
+
+    if (!hasExpandableContent) {
+      return (
+        <div className="p-2 border rounded-md border-border/50 hover:bg-muted/50 transition-all duration-200">
+          <RenderValue value={node.metadata.jsonValue} path={node.path} />
+        </div>
+      );
+    }
+
+    return (
+      <AccordionItem
+        value={node.key}
+        className="border rounded-md border-border/50 overflow-hidden bg-card/70 backdrop-blur-sm transition-all duration-200"
+      >
+        <AccordionTrigger className="py-3 px-2 hover:no-underline data-[state=open]:bg-muted/50 rounded-sm">
+          <div className="flex flex-col justify-between items-start w-full">
+            <p className="text-sm font-medium text-foreground/90 truncate">{node.path}</p>
+            <span className="text-xs text-muted-foreground">{itemCount} items</span>
+          </div>
+        </AccordionTrigger>
+        <AccordionContent className="px-3 pb-3 pt-1 space-y-3">
+          <RenderValue value={node.metadata.jsonValue} path={node.path} />
+          <div className="flex justify-end">
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={handleExpand}
+              className="text-xs"
+            >
+              {node.metadata.dataType === "array" ? "Expand Array" : "Expand Object"}
+            </Button>
+          </div>
+        </AccordionContent>
+      </AccordionItem>
+    );
+  }
+);
+
 export const JsonNode = memo(({ data, id }: NodeProps<ReactFlowNode>) => {
   const pathName = data.processedJsonData.parentPath ?? "root";
   const parentOutput = `${id}-output`;
   const parentInput = `${id}-input`;
-  
 
-  
-  
-  // Memoize the node content with search match detection
-  const nodeContent = useMemo(() => 
-    data.processedJsonData.nodes.map((node: any) => {
-   
-      
-      return (
-        <NodeItem 
-          key={node.key} 
-          node={node} 
-          pathName={pathName}
-          onNodeExpand={data.onNodeExpand}
-        />
-      );
+  const shouldCollapseByDefault = data.processedJsonData.nodes.length > 3;
+
+  const nodeContent = useMemo(() => {
+    const nodes = data.processedJsonData.nodes;
+    const expandableNodes = nodes.filter(
+      (node) => node.metadata.dataType === "object" || node.metadata.dataType === "array"
+    );
+    const primitiveNodes = nodes.filter(
+      (node) => node.metadata.dataType !== "object" && node.metadata.dataType !== "array"
+    );
+
+    return (
+      <>
+        {primitiveNodes.map((node: any) => (
+          <NodeItem
+            key={node.key}
+            node={node}
+            pathName={pathName}
+            onNodeExpand={data.onNodeExpand}
+          />
+        ))}
+
+        {expandableNodes.length > 0 && (
+          <Accordion
+            type="multiple"
+            defaultValue={shouldCollapseByDefault ? [] : expandableNodes.map((n) => n.key)}
+            className="flex flex-col gap-2"
+          >
+            {expandableNodes.map((node: any) => (
+              <NodeItem
+                key={node.key}
+                node={node}
+                pathName={pathName}
+                onNodeExpand={data.onNodeExpand}
+              />
+            ))}
+          </Accordion>
+        )}
+      </>
+    );
+  }, [data.processedJsonData.nodes, pathName, data.onNodeExpand, shouldCollapseByDefault]);
+
+  const nodeStats = useMemo(
+    () => ({
+      totalItems: data.processedJsonData.nodes.length,
+      hasChildren: data.processedJsonData.hasChildren ? "Yes" : "No",
+      expandableItems: data.processedJsonData.nodes.filter(
+        (node: any) =>
+          node.metadata.dataType === "object" || node.metadata.dataType === "array"
+      ).length,
+      primitiveItems: data.processedJsonData.nodes.filter(
+        (node: any) =>
+          node.metadata.dataType !== "object" && node.metadata.dataType !== "array"
+      ).length,
     }),
-    [data.processedJsonData.nodes, pathName, data.onNodeExpand]
+    [data.processedJsonData.nodes, data.processedJsonData.hasChildren]
   );
 
-  // Memoize node stats
-  const nodeStats = useMemo(() => ({
-    totalItems: data.processedJsonData.nodes.length,
-    hasChildren: data.processedJsonData.hasChildren ? 'Yes' : 'No',
-  }), [data.processedJsonData.nodes.length, data.processedJsonData.hasChildren]);
-
   return (
-     <div 
-      className={`
-        bg-card border rounded-lg p-4 shadow-sm min-w-[300px] relative
-        transition-all duration-500 ease-out        
-      ${data?.isHighlighted ? 'border-red-400 border-2' : ''}
-      ${data?.isAncestorHighlighted ? 'border-blue-300 border-2' : ''}
-        `}
+    <div
+      className="
+        bg-card border border-border/40 rounded-lg p-5 shadow-sm hover:shadow-md 
+        min-w-[420px] max-w-[700px] transition-all duration-300 ease-out
+      "
     >
+      <Handle type="source" position={Position.Right} id={parentOutput} />
+      <Handle type="target" position={Position.Left} id={parentInput} />
 
-      <Handle
-        type="source"
-        position={Position.Right}
-        id={parentOutput}
-      />
-      <Handle
-        type="target" 
-        position={Position.Left}
-        id={parentInput}
-      />
-      
-      {/* Node Header */}
-      <div className="border-b border-border pb-2 mb-3">
-        <h3 className="font-semibold text-foreground truncate" title={pathName}>
-          {pathName}
-        </h3>
+      <div className="border-b border-border/40 pb-3 mb-3">
+        <h3 className="font-semibold text-lg text-foreground truncate">{pathName}</h3>
         {data.processedJsonData.parentPath && (
           <p className="text-sm text-muted-foreground truncate">Key: {pathName}</p>
         )}
       </div>
 
-      {/* Node Content */}
-      <div className="space-y-3 max-h-[400px] overflow-y-auto">
+      <div
+        className="
+          space-y-3  overflow-y-auto  
+          scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent 
+          hover:scrollbar-thumb-muted-foreground/40
+        "
+        style={{ scrollbarWidth: "none" }}
+      >
         {nodeContent}
       </div>
 
-      {/* Node Footer */}
-      <div className="mt-3 pt-2 border-t border-border text-xs text-muted-foreground">
-        <p>Total items: {nodeStats.totalItems}</p>
-        <p>Has children: {nodeStats.hasChildren}</p>
-  
+      <div className="mt-4 pt-3 border-t border-border/40 text-xs text-muted-foreground">
+        <div className="flex justify-between">
+          <span>Total: {nodeStats.totalItems}</span>
+          <span>Children: {nodeStats.hasChildren}</span>
+        </div>
+        <div className="flex justify-between mt-1">
+          <span>Expandable: {nodeStats.expandableItems}</span>
+          <span>Primitive: {nodeStats.primitiveItems}</span>
+        </div>
+      
       </div>
-    
     </div>
   );
 });
 
-// Add display name for better debugging
-JsonNode.displayName = 'JsonNode';
+JsonNode.displayName = "JsonNode";

@@ -1,106 +1,70 @@
+// ─────────────────────────────────────────────────────────────
+// JSON LEVEL ANALYZER & NODE BUILDER
+// ─────────────────────────────────────────────────────────────
+
 import { detectPrimitiveType } from "@/lib/utitlityTypeDetectors";
+import { LevelAnalysisResult, LevelNode } from "@/types/JsonNodeTypes";
+import { ExtraDataTypes, JsonObject, JsonValue } from "@/types/JsonTypes";
 
-
-
-export type JsonPrimitive = string | number | boolean | null;
-export type JsonValue = JsonPrimitive | JsonObject | JsonArray;
-export interface JsonObject { [key: string]: JsonValue; }
-export interface JsonArray extends Array<JsonValue> {}
-
-// Example 1: Process root level
-
-
-export type ExtraDataTypes = 
-  | 'string' | 'number' | 'boolean' | 'null' 
-  | 'object' | 'array'
-  | 'url' | 'email' | 'uuid'
-  | 'timestamp' | 'date' | 'datetime'
-  | 'hex-color' | 'rgb-color' | 'rgba-color'
-  | 'version' | 'semantic-version'
-  | 'ip-address' | 'ipv4' | 'ipv6'
-  | 'json' | 'base64'
-  | 'phone' | 'credit-card'
-  | 'file-path' | 'directory-path';
-
-export interface LevelAnalysisResult {
-  nodes: LevelNode[];
-  parentPath?: string;
-  hasChildren: boolean;
-  processedDataType: ExtraDataTypes; // Add the data type of the processed data
-}
-
-export interface LevelNode {
-  key: string;
-  path: string;
-  parentPath: string | null;
-  relativeKey: string; // New field: key relative to parent
-  metadata: {
-    dataType: ExtraDataTypes;
-    jsonValue: any;
-    isLeaf: boolean;
-    childCount?: number;
-    processedValueType?: string; // Type of the actual processed value
-  };
-}
-
+/**
+ * Detects enhanced JSON data types.
+ * - Handles primitives (string, number, boolean)
+ * - Handles null, arrays, and objects distinctly
+ */
 function detectEnhancedType(value: JsonValue, key: string = ''): ExtraDataTypes {
-  // Handle null values
-  if (value === null) return 'null';
-
-  // Handle primitive values (strings, numbers, booleans)
-  if (typeof value !== 'object') {
+  if (value === null) return 'null';               // Handle null
+  if (typeof value !== 'object') {                 // Handle primitive types
     return detectPrimitiveType(value, key);
   }
-
-  // Handle complex types (objects and arrays)
-  if (Array.isArray(value)) return 'array';
-  return 'object';
+  if (Array.isArray(value)) return 'array';        // Handle arrays
+  return 'object';                                 // Handle objects
 }
+
+/**
+ * Checks whether a node is a leaf node (no children).
+ */
 function checkIfLeafNode(value: JsonValue): boolean {
   if (value === null) return true;
   if (typeof value !== 'object') return true;
   if (Array.isArray(value)) return value.length === 0;
   return Object.keys(value as JsonObject).length === 0;
 }
-/**
- * Processes a SINGLE level of JSON data and returns analysis with parent references
- */
 
 /**
- * Enhanced function to process a SINGLE level of JSON data
+ * Enhanced function to process a SINGLE level of JSON data.
+ * It analyzes all keys/values at that level and produces LevelNodes.
  */
 export function processJsonLevel(
   data: any, 
   parentPath: string = 'root', 
   parentKey: string = 'root'
 ): LevelAnalysisResult {
-  // Validate input is valid JSON structure
   if (!isValidJsonValue(data)) {
     throw new Error('Invalid JSON value provided');
   }
 
   const nodes: LevelNode[] = [];
   let hasChildren = false;
-  const processedDataType = detectEnhancedType(data, parentKey); // Data type of the processed data itself
+  const processedDataType = detectEnhancedType(data, parentKey);
 
-  // Handle different data types at current level
+  // ─── Handle each type of JSON data ─────────────────────────────
   if (data === null || typeof data !== 'object') {
-    // Primitive value - single node
-    const node = createLevelNode(parentKey, data, parentPath, null);
+    // Primitive node
+    const node = createLevelNode(parentKey, data, parentPath, null, 'root');
     nodes.push(node);
   } else if (Array.isArray(data)) {
-    // Array - process each element at current level
+    // Array: iterate over elements
     hasChildren = data.length > 0;
     data.forEach((item, index) => {
-      const node = createLevelNode(index.toString(), item, parentPath, parentPath);
+      const node = createLevelNode(index.toString(), item, parentPath, parentPath, 'array');
       nodes.push(node);
     });
   } else {
-    // Object - process each property at current level
+    // Object: iterate over keys
     const keys = Object.keys(data);
     hasChildren = keys.length > 0;
     keys.forEach(key => {
-      const node = createLevelNode(key, data[key], parentPath, parentPath);
+      const node = createLevelNode(key, data[key], parentPath, parentPath, 'object');
       nodes.push(node);
     });
   }
@@ -109,82 +73,111 @@ export function processJsonLevel(
     nodes,
     parentPath: parentPath === 'root' ? undefined : parentPath,
     hasChildren,
-    processedDataType // Include the data type of the processed data
+    processedDataType
   };
 }
 
 /**
- * Enhanced function to create a single level node
+ * Creates a single LevelNode for a given key-value pair.
+ * - Builds the node path
+ * - Detects data type
+ * - Determines if it's a leaf
+ * - Calculates child count
  */
 function createLevelNode(
   key: string, 
   value: any, 
   currentPath: string, 
-  parentPath: string | null
+  parentPath: string | null,
+  parentType: 'object' | 'array' | 'root' = 'object'
 ): LevelNode {
   const dataType = detectEnhancedType(value, key);
   const isLeaf = checkIfLeafNode(value);
-  
-  // Build path based on data type and parent
-  const path = buildPath(key, value, currentPath);
-  
-  // Calculate child count for complex types
+
+  // Build the correct full path (using [] for arrays)
+  const path = buildPath(key, value, currentPath, parentType);
+
+  // Count children if the node has nested structures
   const childCount = getChildCount(value);
 
-  // Generate relative key (key relative to parent)
-  const relativeKey = generateRelativeKey(key, parentPath);
+  // Generate relative key (e.g., users[0] or users.name)
+  const relativeKey = generateRelativeKey(key, parentPath, parentType);
 
   return {
     key,
     path,
     parentPath,
-    relativeKey, // New field
     metadata: {
       dataType,
       jsonValue: value,
       isLeaf,
       ...(childCount > 0 && { childCount }),
-      processedValueType: typeof value // Type of the actual processed value
     }
   };
 }
 
 /**
- * Generates a key relative to the parent path
+ * Generates a key relative to the parent path.
+ * Example:
+ * - Object: parent.key
+ * - Array: parent[index]
  */
-function generateRelativeKey(key: string, parentPath: string | null): string {
+function generateRelativeKey(
+  key: string,
+  parentPath: string | null,
+  parentType: 'object' | 'array' | 'root' = 'object'
+): string {
+  const isIndex = /^\d+$/.test(key);
+
+  // For root
   if (!parentPath || parentPath === 'root') {
-    return key;
+    return isIndex ? `root[${key}]` : `root.${key}`;
   }
-  
-  // For array indices, show as parent[index]
-  if (/^\d+$/.test(key)) {
+
+  // For array parents, use bracket syntax
+  if (parentType === 'array') {
     return `${parentPath}[${key}]`;
   }
-  
-  // For object properties, show as parent.key
-  return `${parentPath}.${key}`;
+
+  // For object parents
+  return isIndex ? `${parentPath}[${key}]` : `${parentPath}.${key}`;
 }
 
 /**
- * Enhanced path building function
+ * Builds the correct full path for the current key.
+ * Example outputs:
+ * - root.users[0].name
+ * - root.items[2].price
+ * - root.details.address
  */
-function buildPath(key: string, value: any, parentPath: string): string {
-  if (parentPath === 'root') {
-    return `root.${key}`;
+function buildPath(
+  key: string,
+  value: any,
+  parentPath: string,
+  parentType: 'object' | 'array' | 'root'
+): string {
+  const isIndex = /^\d+$/.test(key);
+
+  // Root-level path
+  if (parentPath === 'root' || parentType === 'root') {
+    return isIndex ? `root[${key}]` : `root.${key}`;
   }
-  
-  if (Array.isArray(value)) {
+
+  // For array parent, always use bracket notation
+  if (parentType === 'array') {
     return `${parentPath}[${key}]`;
   }
-  
-  return `${parentPath}.${key}`;
+
+  // For object parent, use dot or bracket as appropriate
+  return isIndex ? `${parentPath}[${key}]` : `${parentPath}.${key}`;
 }
 
-// utitlity methods
+// ─────────────────────────────────────────────────────────────
+// UTILITY FUNCTIONS
+// ─────────────────────────────────────────────────────────────
 
 /**
- * Gets child count for complex types
+ * Gets child count for complex types (arrays/objects)
  */
 function getChildCount(value: any): number {
   if (value === null || typeof value !== 'object') return 0;
@@ -193,22 +186,18 @@ function getChildCount(value: any): number {
 }
 
 /**
- * Validates if value is a valid JSON type
+ * Validates if a value is a valid JSON type
  */
 function isValidJsonValue(value: any): boolean {
   if (value === null) return true;
-  
+
   const type = typeof value;
   if (type === 'string' || type === 'number' || type === 'boolean') return true;
-  
+
   if (type === 'object') {
     if (Array.isArray(value)) return true;
-    // Check if it's a plain object (not Date, RegExp, etc.)
-    return value.constructor === Object;
+    return value.constructor === Object; // plain object only
   }
-  
+
   return false;
 }
-
-
-

@@ -12,7 +12,7 @@ const ControlsNav = (
      handleJsonRemove: () => void, isLayoutAnimating: boolean }) => (
 
         
-      <div className="fixed top-5 md:right-5 right-3 z-50 flex gap-2">
+      <div className="flex gap-2">
           <Button 
             onClick={handleFitView}
             variant="outline"

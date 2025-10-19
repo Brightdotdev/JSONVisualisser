@@ -7,11 +7,15 @@ export type NodeType = "jsonNode" | "arrayNode" | "primitiveNode";
 
 
 
+
+
 export interface LevelAnalysisResult {
   nodes: LevelNode[];
   parentPath?: string;
   hasChildren: boolean;
+  processedDataType: ExtraDataTypes; // Add the data type of the processed data
 }
+
 
 export interface LevelNode {
   key: string;

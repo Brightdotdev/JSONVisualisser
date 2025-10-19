@@ -3,6 +3,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ExtraDataTypes, JsonArray, JsonObject, JsonTab, JsonValue } from "@/types/JsonTypes";
 import { useJsonState } from "@/hooks/useJsonState";
 
+import { IoReturnDownBackSharp } from "react-icons/io5";
 import PerformanceDebugger from "../elements/PerformanceDebugger";
 import { JsonNode } from "../nodes/JsonNode";
 import { ReactFlowNode } from "@/types/JsonNodeTypes";
@@ -12,7 +13,6 @@ import { useNodeLayout } from "@/hooks/Reactflow/useNodeLayout";
 import ControlsNav from "./ControlsNav";
 import { JsonSearchCommand } from "../Search/JsonSearchCommand";
 import { toast } from "sonner";
-
 
 
 
@@ -174,16 +174,31 @@ export const ReactFlowGraphCanvas = ({ jsonTab }: { jsonTab: JsonTab }) => {
         }}
       >
      
-    
+
+
+
+
+
+
+<div className="flex items-center jsutify-center gap-2 fixed top-5 md:right-5 right-3 z-50">
+
 <JsonSearchCommand data={jsonData} />
 
-    
+
+
       <ControlsNav 
         handleFitView={handleFitView}
         handleReLayout={handleReLayout}
         handleJsonRemove={handleJsonRemove}
         isLayoutAnimating={isLayoutAnimating}
       />
+
+
+</div>
+
+    
+
+    
 
         <Background variant={BackgroundVariant.Dots} gap={30} />
       </ReactFlow>
