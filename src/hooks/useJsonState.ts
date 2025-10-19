@@ -6,6 +6,7 @@ import { processJsonLevel } from "@/handlers/JsonLevelHandler";
 import { ReactFlowNode, ReactFlowStateTab } from "@/types/JsonNodeTypes";
 import { Edge } from "@xyflow/react";
 import { TreeLayout } from "@/utils/treelayout";
+import { toast } from "sonner";
 
 
 
@@ -67,7 +68,7 @@ export const useJsonState = (tabSlug: string) => {
       const jsonStates = localStorage.getItem("json-states");
       return jsonStates ? JSON.parse(jsonStates) : [];
     } catch (error) {
-      console.error("Failed to parse JSON states from localStorage:", error);
+       toast.error(`Failed to parse Json states`);
       return [];
     }
   });

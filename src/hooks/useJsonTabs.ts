@@ -5,6 +5,7 @@ import { getUniqueFileName } from "@/lib/jsonUtils";
 import { JsonObject, JsonTab } from "@/types/JsonTypes"
 import { generateJsonSlug } from "@/utils/slugGenerator";
 import { useCallback, useEffect, useState } from "react"
+import { toast } from "sonner";
 
 export const useJsonTabs = () => {
   const [jsonTabs, setJsonTabs] = useState<JsonTab[]>(() => {
@@ -13,7 +14,7 @@ export const useJsonTabs = () => {
     const userJsonTabs = localStorage.getItem("json-tabs");
     return userJsonTabs ? JSON.parse(userJsonTabs) : [];
   } catch (error) {
-    console.error("Failed to parse JSON tabs from localStorage:", error);
+     toast.error(`Failed to parse JSON tabs`);
     return [];
   }
 });

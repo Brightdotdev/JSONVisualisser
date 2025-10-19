@@ -11,6 +11,7 @@ import { useNodeLayout } from "@/hooks/Reactflow/useNodeLayout";
 
 import ControlsNav from "./ControlsNav";
 import { JsonSearchCommand } from "../Search/JsonSearchCommand";
+import { toast } from "sonner";
 
 
 
@@ -110,7 +111,7 @@ export const ReactFlowGraphCanvas = ({ jsonTab }: { jsonTab: JsonTab }) => {
         });
       }
     } catch (error) {
-      console.error('Error expanding node:', error);
+      toast.error(`Error expanding node: ${error}`);
     } finally {
       setIsLayoutAnimating(false);
     }

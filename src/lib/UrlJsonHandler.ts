@@ -1,3 +1,5 @@
+import { toast } from "sonner";
+
 /**
  * Encodes JSON to a URL-safe base64 string
  */
@@ -7,7 +9,7 @@ export function encodeJsonToUrl(json: any): string {
     const base64 = btoa(unescape(encodeURIComponent(jsonString)));
     return base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
   } catch (error) {
-    console.error('Error encoding JSON to URL:', error);
+    toast.error(`Error encoding JSON to URL:', ${error}`)
     return '';
   }
 }
@@ -25,7 +27,9 @@ export function decodeJsonFromUrl(encoded: string): any {
     const jsonString = decodeURIComponent(escape(atob(base64)));
     return JSON.parse(jsonString);
   } catch (error) {
-    console.error('Error decoding JSON from URL:', error);
+    
+    toast.error(`Error decoding JSON from URL:', ${error}`)
+
     return null;
   }
 }

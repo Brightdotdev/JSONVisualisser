@@ -1,5 +1,7 @@
 // import { EnhancedAnalysis, ExtraDataTypes, JsonArray, JsonNode, JsonNodeMetadata, JsonObject, JsonParseResult, JsonValue } from "@/types/JsonTypes";
 
+import { toast } from "sonner";
+
 
 
 
@@ -612,36 +614,6 @@ function isDirectoryPath(str: string): boolean {
 // UTILITY FUNCTIONS FOR WORKING WITH RESULTS
 // =============================================================================
 
- export function printEnhancedAnalysis(result: JsonParseResult | { error: string }): void {
-  if ('error' in result) {
-    console.error('Error:', result.error);
-    return;
-  }
-
-  console.log('=== Enhanced JSON Analysis ===');
-  console.log(`Total Nodes: ${result.summary.totalNodes}`);
-  console.log(`Max Depth: ${result.summary.maxDepth}`);
-  console.log('\nType Summary:');
-  Object.entries(result.summary.byType).forEach(([type, count]) => {
-    console.log(`  ${type}: ${count}`);
-  });
-
-  console.log('\nDetailed Nodes (first 10):');
-  console.table(result.nodes.slice(0, 10).map(node => ({
-    Index: node.index,
-    Key: node.key,
-    Type: node.metadata.dataType,
-    Path: node.path,
-    Depth: node.depth,
-    'JSON Value': node.metadata.jsonValue,
-    "JSON Type": node.metadata.dataType,
-    'Is Leaf': node.isLeaf,
-    'Parent Path': node.parentPath || 'N/A'
-  })));
-
-  console.log('\nOriginal Structure:');
-  console.log(JSON.stringify(result.summary.structure, null, 2));
-}
 
  function getNodesByType(result: JsonParseResult, type: ExtraDataTypes): JsonNode[] {
   return result.nodes.filter(node => node.metadata.dataType === type);
@@ -686,28 +658,6 @@ function getEnhancedAnalysis(
   };
 
   return analysis;
-}
-
-
-// =============================================================================
-// USAGE EXAMPLE
-// =============================================================================
-
-
-
-
-console.log("=== Enhanced JSON Analysis ===");
-const enhancedAnalysis = processJsonData(exampleJsonString);
-printEnhancedAnalysis(enhancedAnalysis);
-
-if (!('error' in enhancedAnalysis)) {
-  console.log("\n=== Versions Found ===");
-  const versions = getNodesByType(enhancedAnalysis, 'version');
-  console.table(versions.map(version => ({ Path: version.path, Value: version.metadata.jsonValue })));
-
-  console.log("\n=== URLs Found ===");
-  const urls = getNodesByType(enhancedAnalysis, 'url');
-  console.table(urls.map(url => ({ Path: url.path, Value: url.metadata.jsonValue })));
 }
 
 

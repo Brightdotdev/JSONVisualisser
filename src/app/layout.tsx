@@ -6,10 +6,9 @@ import "./globals.css";
 import '@xyflow/react/dist/style.css';
 
 import { ThemeProvider } from "@/contexts/themeContext";
-import Footer from "@/components/elements/Footer";
-import { ReactFlowProvider } from "@xyflow/react";
 
-import { Toaster } from "@/components/ui/toaster";
+import { ReactFlowProvider } from "@xyflow/react";
+import { Toaster } from "sonner";
 
 
 // Load fonts with subsets (Latin for performance)
