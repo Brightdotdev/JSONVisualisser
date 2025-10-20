@@ -1,4 +1,4 @@
-import { ExtraDataTypes, JsonObject } from "@/types/JsonTypes";
+import { ExtraDataTypes, JsonObject, JsonTab } from "@/types/JsonTypes";
 import { useCallback, useEffect, useState } from "react";
 import { useJsonTabs } from "./useJsonTabs";
 import { generateJsonSlug } from "@/utils/slugGenerator";
@@ -170,7 +170,8 @@ export const useJsonState = (tabSlug: string) => {
       jsonSlug: generateJsonSlug(jsonTab.jsonData),
       jsonData: jsonTab.jsonData,
       nodes: [rootNode], // Just the root node
-      edges: [] // No edges for now
+      edges: [], // No edges for now
+      fileName : jsonTab.fileName
     };
     
     addToJsonState(newStateTab);
@@ -231,7 +232,7 @@ const addProcessedChildNode = useCallback((
   addNodeWithEdge(parentPath, newNode, newEdge);
   
   // Return the new node ID for focusing
-  return newNode;
+  return {newNode, newEdge};
 }, [processChildNode, addNodeWithEdge]);
 
      
@@ -350,5 +351,6 @@ const addProcessedChildNode = useCallback((
 setContainerSize,
 containerSize,
     allStates: reactFlowState,
+  
   };
 };

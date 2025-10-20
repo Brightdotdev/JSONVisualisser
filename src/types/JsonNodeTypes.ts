@@ -47,6 +47,7 @@ export type ReactFlowNode  = Node <{processedJsonData: LevelAnalysisResult,
 export interface ReactFlowStateTab {
   tabSlug: string;
   jsonSlug: string;
+  fileName  : string;
   jsonData: JsonValue;
   nodes: ReactFlowNode[];
   edges: any[];

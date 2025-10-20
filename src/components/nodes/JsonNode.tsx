@@ -85,7 +85,7 @@ const NodeItem = memo(
     return (
       <AccordionItem
         value={node.key}
-        className="border rounded-md border-border/50 overflow-hidden bg-card/70 backdrop-blur-sm transition-all duration-200"
+        className="border rounded-sm border-border/50 overflow-hidden bg-card/70 backdrop-blur-sm transition-all duration-200"
       >
         <AccordionTrigger className="py-3 px-2 hover:no-underline data-[state=open]:bg-muted/50 rounded-sm">
           <div className="flex flex-col justify-between items-start w-full">
@@ -177,7 +177,7 @@ export const JsonNode = memo(({ data, id }: NodeProps<ReactFlowNode>) => {
   return (
     <div
       className="
-        bg-card border border-border/40 rounded-lg p-5 shadow-sm hover:shadow-md 
+        bg-card border border-border/90 rounded-lg p-5 shadow-md 
         min-w-[420px] max-w-[700px] transition-all duration-300 ease-out
       "
     >

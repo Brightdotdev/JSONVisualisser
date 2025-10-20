@@ -57,6 +57,15 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>    
+    <head>
+
+<link rel="manifest" href="/manifest.json" />
+<meta name="theme-color" content="#0f172a" />
+<link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
+
+
+    </head>
+    
       <body className="h-screen w-screeen  bg-background text-foreground antialiased font-mono flex flex-col  items-center justify-between gap-16 overflow-x-hidden">
          <ThemeProvider defaultTheme="system">
         

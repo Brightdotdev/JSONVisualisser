@@ -1,12 +1,14 @@
 
 
 import Footer from '@/components/elements/Footer'
-import JsonFormaterPage from '@/components/elements/JsonFormaterPage'
+import Header from '@/components/elements/Hearder'
+import JsonFormaterPage from '@/components/screens/JsonFormaterPage'
 import React from 'react'
 
 const page = () => {
   return (
     <>
+    <Header />
     <JsonFormaterPage />
     <Footer/>
      </>

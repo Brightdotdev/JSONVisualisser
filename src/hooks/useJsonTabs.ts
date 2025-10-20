@@ -8,14 +8,21 @@ import { useCallback, useEffect, useState } from "react"
 import { toast } from "sonner";
 
 export const useJsonTabs = () => {
+  const [isLoading, setLoading] =useState(false)
   const [jsonTabs, setJsonTabs] = useState<JsonTab[]>(() => {
   if (typeof window === "undefined") return []; 
   try {
+    setLoading(true)
     const userJsonTabs = localStorage.getItem("json-tabs");
     return userJsonTabs ? JSON.parse(userJsonTabs) : [];
+
   } catch (error) {
      toast.error(`Failed to parse JSON tabs`);
-    return [];
+   
+
+     return [];
+  }finally{
+   setLoading(false)
   }
 });
 
@@ -27,8 +34,7 @@ useEffect(() => {
 }, [jsonTabs]);
 
 const addJsonTab = useCallback((jsonData: JsonObject, fileName: string): JsonTab | { error: string } => {
-    const jsonSlug = generateJsonSlug(jsonData);
-    
+    const jsonSlug = generateJsonSlug(jsonData);    
     // Check for duplicate content first
     const existingTabByContent = jsonTabs.find(tab => tab.slug === jsonSlug);
     if (existingTabByContent) {
@@ -48,6 +54,7 @@ const addJsonTab = useCallback((jsonData: JsonObject, fileName: string): JsonTab
     };
 
     setJsonTabs(prevTabs => [...prevTabs, jsonTab]);
+   
     return jsonTab;
 }, [jsonTabs]);
 
@@ -61,10 +68,13 @@ const addJsonTab = useCallback((jsonData: JsonObject, fileName: string): JsonTab
       tab.id === identifier
     );
     console.log("Found json", JSON.stringify(json))
+   
+
     return json
   }, [jsonTabs]);
 
   const getJsonTabBySlug = useCallback((slug: string): JsonTab | undefined => {
+    
     return jsonTabs.find(tab => tab.slug === slug);
   }, [jsonTabs]);
 
@@ -126,6 +136,7 @@ const addJsonTab = useCallback((jsonData: JsonObject, fileName: string): JsonTab
     getTabIndex,
     removeTab,
     updateTab,
-    clearAllTabs
+    clearAllTabs,
+    isLoading
   };
 };
