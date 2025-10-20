@@ -17,7 +17,7 @@ useEffect(() => {
 
 
   return (
-    <div className="w-full flex flex-col h-screen items-center justify-center md:gap-16 gap-8 p-1">    
+    <div className="w-screen flex flex-col h-screen items-center justify-start md:justify-center md:gap-12 sm:gap-8 gap-4 p-1">    
     
     <h1 className="hero-text">
       <span className='md:flex hidden'>

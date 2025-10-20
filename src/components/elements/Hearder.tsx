@@ -24,21 +24,57 @@ const Header = () => {
           {/* Brand Name */}
           <span className="font-semibold text-xs sm:text-sm md:text-base whitespace-nowrap">
             Brightdotdev/
-            <span className="text-primary">JSONVisualisser</span>
+            <span className="text-primary">JSONVisualiser</span>
           </span>
         </Link>
 
-        {/* ---- Right: Menu Button ---- */}
+        {/* ---- Right: Desktop Buttons (hidden on mobile) ---- */}
+        <div className="hidden sm:flex items-center gap-2">
+          {/* Go to My Tabs */}
+          {pathname !== "/tabs" && (
+            <Link href="/tabs">
+              <Button variant="default" className="text-sm">
+                My Tabs
+              </Button>
+            </Link>
+          )}
+
+                {pathname !== "/" && (
+            <Link href="/">
+              <Button variant="default" className="text-sm">
+                Create A New Tab
+              </Button>
+            </Link>
+          )}
+
+
+          {/* GitHub Button */}
+          <Link
+            href="https://github.com/Brightdotdev/JsonVisualizer"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <Button
+              variant="outline"
+              className="flex items-center gap-2 text-sm"
+            >
+              <FaGithub className="h-4 w-4" />
+              Star on GitHub
+            </Button>
+          </Link>
+        </div>
+
+        {/* ---- Right: Mobile Menu Button (hidden on desktop) ---- */}
         <button
           onClick={toggleMenu}
-          className="flex items-center justify-center p-2 rounded-md hover:bg-muted transition-colors"
+          className="flex sm:hidden items-center justify-center p-2 rounded-md hover:bg-muted transition-colors"
           aria-label="Toggle menu"
         >
           {menuOpen ? <X size={18} /> : <Menu size={18} />}
         </button>
       </div>
 
-      {/* ---- Animated Dropdown Menu ---- */}
+      {/* ---- Animated Dropdown Menu (mobile only) ---- */}
       <AnimatePresence>
         {menuOpen && (
           <motion.div
@@ -46,9 +82,9 @@ const Header = () => {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
             transition={{ duration: 0.2, ease: "easeOut" }}
-            className="border-t border-border bg-background/80 backdrop-blur-sm"
+            className="border-t border-border bg-background/80 backdrop-blur-sm sm:hidden"
           >
-            <div className="flex flex-col px-4 py-3 space-y-2 sm:hidden">
+            <div className="flex flex-col px-4 py-3 space-y-2">
               {/* Go to My Tabs */}
               {pathname !== "/tabs" && (
                 <Link href="/tabs" onClick={() => setMenuOpen(false)}>
@@ -57,6 +93,17 @@ const Header = () => {
                   </Button>
                 </Link>
               )}
+
+                    
+              {pathname !== "/" && (
+                <Link href="/" onClick={() => setMenuOpen(false)}>
+                  <Button variant="default" className="w-full text-sm">
+                    My Tabs
+                  </Button>
+                </Link>
+              )}
+
+                    
 
               {/* GitHub Button */}
               <Link
