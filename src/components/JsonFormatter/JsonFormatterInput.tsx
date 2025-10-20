@@ -1,66 +1,26 @@
 "use client";
 
 import { useState, memo, useCallback, useEffect, useRef, useMemo } from "react";
-import { useRouter } from "next/navigation"; // ✅ for redirect
+import { useRouter } from "next/navigation";
 import TextareaAutosize from "react-textarea-autosize";
 import { InputGroup, InputGroupAddon, InputGroupButton } from "@/components/ui/input-group";
 import { Card } from "@/components/ui/card";
 import { X, Upload } from "lucide-react";
 import { useJsonFormatter } from "@/hooks/useJsonFormatter";
-import { Alert, AlertTitle } from "./alert";
-import { Spinner } from "./spinner";
+import { Alert, AlertTitle } from "../ui/alert";
+import { Spinner } from "../ui/spinner";
 import { useJsonTabs } from "@/hooks/useJsonTabs";
-import { Button } from "./button";
+import { Button } from "../ui/button";
+import { Loader } from "../ui/loader"; // Import the loader
+import { ErrorDisplay, JsonMetadataDisplay, LoadingOverlay } from "./JsonFormatterInputUtils";
 
 
-// =============== JSON Metadata Display ===============
-const JsonMetadataDisplay = memo(({ 
-  fileName, 
-  metadata, 
-  onClear 
-}: { 
-  fileName: string;
-  metadata: { lines: number; keys: number; depth: number } | null;
-  onClear: () => void;
-}) => (
-  <Card className="w-full flex flex-col gap-3 p-2 bg-background/50 md:text-sm text-xs">
-    <div className="flex items-center justify-between">
-      <p className="font-mono truncate">{fileName}</p>
-      <Button
-        type="button"
-        variant="ghost"
-        onClick={onClear}
-        className="text-muted-foreground hover:text-destructive transition-colors cursor-pointer rounded-full p-1"
-      >
-        <X size={16} />
-      </Button>
-    </div>
 
-    <div className="flex flex-col gap-1 text-xs">
-      <span>Lines: {metadata?.lines ?? 0}</span>
-      <span>Keys: {metadata?.keys ?? 0}</span>
-      <span>Depth: {metadata?.depth ?? 0}</span>
-    </div>
-  </Card>
-));
-JsonMetadataDisplay.displayName = "JsonMetadataDisplay";
-
-
-// =============== Error Display ===============
-const ErrorDisplay = memo(({ error, isVisible }: { error: string; isVisible: boolean }) => {
-  if (!isVisible) return null;
-  return (
-    <Alert variant="destructive" className="flex items-center bg-none text-destructive-foreground border-none">
-      <AlertTitle className="flex items-center gap-2">{error}</AlertTitle>
-    </Alert>
-  );
-});
-ErrorDisplay.displayName = "ErrorDisplay";
 
 
 // =============== Main JSON Formatter Input ===============
 export default function JsonFormatterInput() {
-  const router = useRouter(); // ✅ Next.js redirect hook
+  const router = useRouter();
   const { addTempJson, tempJsonData, error, clearTempJson, jsonMetadata } = useJsonFormatter();
   const { addJsonTab } = useJsonTabs();
 
@@ -70,6 +30,7 @@ export default function JsonFormatterInput() {
   const [fileName, setFileName] = useState("untitled.json");
   const [dragOver, setDragOver] = useState(false);
   const [isSubmitting, setSubmitting] = useState(false);
+  const [isRedirecting, setRedirecting] = useState(false); // New state for redirect loading
   const [errorVisible, setErrorVisible] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -249,7 +210,7 @@ export default function JsonFormatterInput() {
     }
 
     setSubmitting(true);
-    const newTab =  addJsonTab(tempJsonData, fileName);
+    const newTab = addJsonTab(tempJsonData, fileName);
     setSubmitting(false);
 
     if ("error" in newTab) {
@@ -257,9 +218,16 @@ export default function JsonFormatterInput() {
       return;
     }
 
-    // ✅ Redirect to new tab
-    router.push(`/tabs/${newTab.slug}`);
-    clearTempJson();
+    // Show redirect loading state
+    setRedirecting(true);
+    
+    // Small delay to ensure loading state is visible
+    setTimeout(() => {
+      router.push(`/tabs/${newTab.slug}`);
+      clearTempJson();
+      // Note: We don't setRedirecting(false) here because the component
+      // will unmount during navigation
+    }, 100);
   }, [tempJsonData, fileName, addJsonTab, router, clearTempJson, showError]);
 
   // ---- Dynamic Classes ----
@@ -275,59 +243,69 @@ export default function JsonFormatterInput() {
 
   // ---- Render ----
   return (
-    <div className={containerClass} onDragOver={handleDragOver} onDragLeave={handleDragLeave} onDrop={handleDrop}>
-      <InputGroup className="rounded-xl bg-background shadow-sm transition focus-within:ring-1 focus-within:ring-primary">
-        {tempJsonData ? (
-          <JsonMetadataDisplay fileName={fileName} metadata={jsonMetadata} onClear={handleClear} />
-        ) : (
-          <TextareaAutosize
-            data-slot="input-group-control"
-            className="flex md:min-h-16 min-h-8 w-full resize-none rounded-md bg-transparent px-3 py-3 md:text-sm text-xs font-mono leading-relaxed placeholder:text-muted-foreground focus:outline-none"
-            placeholder="Paste JSON here, type and press Enter, or drag & drop a file..."
-            onPaste={handlePaste}
-            onKeyDown={handleKeyDown}
-            value={text}
-            onChange={(e) => setText(e.target.value)}
-          />
-        )}
+    <>
+      <LoadingOverlay isVisible={isRedirecting}  />
+      
+      <div className={containerClass} onDragOver={handleDragOver} onDragLeave={handleDragLeave} onDrop={handleDrop}>
+        <InputGroup className="rounded-xl bg-background shadow-sm transition focus-within:ring-1 focus-within:ring-primary">
+          {tempJsonData ? (
+            <JsonMetadataDisplay fileName={fileName} metadata={jsonMetadata} onClear={handleClear} />
+          ) : (
+            <TextareaAutosize
+              data-slot="input-group-control"
+              className="flex md:min-h-16 min-h-8 w-full resize-none rounded-md bg-transparent px-3 py-3 md:text-sm text-xs font-mono leading-relaxed placeholder:text-muted-foreground focus:outline-none"
+              placeholder="Paste JSON here, type and press Enter, or drag & drop a file..."
+              onPaste={handlePaste}
+              onKeyDown={handleKeyDown}
+              value={text}
+              onChange={(e) => setText(e.target.value)}
+            />
+          )}
 
-        <InputGroupAddon align="block-end" className="mt-4 flex gap-2">
-          <>
-            <InputGroupButton
-              className="ml-auto"
-              size="sm"
-              variant="default"
-              onClick={handleSubmit}
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? (
-                <>
-                  <Spinner /> Processing JSON...
-                </>
-              ) : (
-                <>Submit</>
+          <InputGroupAddon align="block-end" className="mt-4 flex gap-2">
+            <>
+              <InputGroupButton
+                className="ml-auto"
+                size="sm"
+                variant="default"
+                onClick={handleSubmit}
+                disabled={isSubmitting || isRedirecting}
+              >
+                {isSubmitting ? (
+                  <>
+                    <Spinner /> Processing JSON...
+                  </>
+                ) : (
+                  <>Submit</>
+                )}
+              </InputGroupButton>
+
+              {!tempJsonData && (
+                <label className="cursor-pointer">
+                  <InputGroupButton 
+                    size="sm" 
+                    variant="secondary" 
+                    type="button" 
+                    onClick={openFilePicker}
+                    disabled={isRedirecting}
+                  >
+                    <Upload size={14} className="mr-1" /> Upload
+                  </InputGroupButton>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept=".json,application/json"
+                    className="hidden"
+                    onChange={handleFileChange}
+                  />
+                </label>
               )}
-            </InputGroupButton>
+            </>
+          </InputGroupAddon>
+        </InputGroup>
 
-            {!tempJsonData && (
-              <label className="cursor-pointer">
-                <InputGroupButton size="sm" variant="secondary" type="button" onClick={openFilePicker}>
-                  <Upload size={14} className="mr-1" /> Upload
-                </InputGroupButton>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept=".json,application/json"
-                  className="hidden"
-                  onChange={handleFileChange}
-                />
-              </label>
-            )}
-          </>
-        </InputGroupAddon>
-      </InputGroup>
-
-      {currentError && <ErrorDisplay error={currentError} isVisible={errorVisible} />}
-    </div>
+        {currentError && <ErrorDisplay error={currentError} isVisible={errorVisible} />}
+      </div>
+    </>
   );
 }

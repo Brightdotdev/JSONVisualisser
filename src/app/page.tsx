@@ -1,7 +1,7 @@
 
 
 import Footer from '@/components/elements/Footer'
-import Header from '@/components/elements/Hearder'
+import Header from '@/components/elements/Header'
 import JsonFormaterPage from '@/components/screens/JsonFormaterPage'
 import React from 'react'
 

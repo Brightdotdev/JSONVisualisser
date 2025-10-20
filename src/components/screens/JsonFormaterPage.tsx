@@ -2,7 +2,7 @@
 
 
 import React, { useEffect } from 'react'
-import JsonFormatterInput from '../ui/JsonFormatterInput'
+import JsonFormatterInput from '../JsonFormatter/JsonFormatterInput'
 
 
 

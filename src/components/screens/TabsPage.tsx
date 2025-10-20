@@ -22,34 +22,9 @@ import { cn } from "@/lib/utils";
 import { FaLinkedin, FaGithub } from "react-icons/fa";
 import { FaXTwitter } from "react-icons/fa6";
 import { JsonTab } from "@/types/JsonTypes";
-import Header from "../elements/Hearder";
+import Header from "../elements/Header";
 
-// --- Minimal Header Component ---
-const TabsHeader = () => {
-  return (
-    <header className="w-full border-b border-border bg-background/60 backdrop-blur sticky top-0">
-      <div className="flex h-14 items-center justify-between px-4 sm:px-6">
-        {/* Back to Home */}
-     <Link href="/" className="flex items-center gap-2 group">
-          {/* Brand Name */}
-          <span className="font-semibold text-xs sm:text-sm md:text-base whitespace-nowrap">
-            Brightdotdev/
-            <span className="text-primary">JSONVisualiser</span>
-          </span>
-        </Link>
-        {/* Page Title */}
-        
-        
-        <div className="flex-1 text-center">
-          <h1 className="text-lg font-semibold">Your JSON Tabs</h1>
-        </div>
 
-        {/* Spacer for balance */}
-        <div className="w-6" />
-      </div>
-    </header>
-  );
-};
 
 // --- Minimal Footer Component ---
 type SocialLinks = "linked-in" | "twitter" | "github";
@@ -191,7 +166,7 @@ const TabsPage: React.FC = () => {
 
         <AnimatePresence>
           <motion.div layout className="w-full max-w-4xl mx-auto flex flex-col gap-4 py-2">
-            {jsonTabs.map((tab) => (
+            {jsonTabs.reverse().map((tab) => (
               <motion.div key={tab.id} {...fadeProps}>
                 <Card className="relative border shadow-sm hover:shadow-md transition-shadow duration-200">
                   {/* Delete Button */}

@@ -66,7 +66,7 @@ export default function JsonTabNotFoundPage() {
 
       {/* Subtitle */}
       <p className="select-none mt-2 text-center body-text">
-        The JSON file you&apos;re looking for does not exist <br />
+        The JSON file/tab you&apos;re looking for does not exist <br />
         or must have been deleted.
       </p>
 

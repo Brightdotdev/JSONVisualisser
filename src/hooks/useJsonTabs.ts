@@ -38,6 +38,7 @@ const addJsonTab = useCallback((jsonData: JsonObject, fileName: string): JsonTab
     // Check for duplicate content first
     const existingTabByContent = jsonTabs.find(tab => tab.slug === jsonSlug);
     if (existingTabByContent) {
+        toast.info("You already have a json Tab with similar content")
         return existingTabByContent;
     }
 
