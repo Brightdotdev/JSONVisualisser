@@ -26,7 +26,7 @@ Paste your JSON and watch it transform into an elegant node-based graph you can 
 Clone the repository and install dependencies:
 
 ```bash
-git clone https://github.com/Brightdotdev/JSONVisualisser
+git https://github.com/Brightdotdev/JSONVisualisser
 cd JSONVisualisser
 npm install
 ````
@@ -68,7 +68,7 @@ It quickly turned into an experiment that helped me understand data structures a
 
 ## 🌍 Live Demo
 
-👉 [Demo Link](https://jsonflow-demo.vercel.app) *(Coming soon)*
+👉 [Demo Link](https://json-visualisser.vercel.app/)
 
 ---
 
