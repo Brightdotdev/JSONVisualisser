@@ -41,6 +41,8 @@ const RenderMetadata = memo(({ value, path }: { value: any; path: string }) => {
     </div>
   );
 });
+RenderMetadata.displayName = "RenderMetadata";
+
 
 const RenderValue = memo(({ value, path }: { value: any; path: string }) => {
   const isObject = value && typeof value === "object";
@@ -55,6 +57,9 @@ const RenderValue = memo(({ value, path }: { value: any; path: string }) => {
     </div>
   );
 });
+
+RenderValue.displayName = "RenderValue";
+
 
 const NodeItem = memo(
   ({
@@ -110,6 +115,9 @@ const NodeItem = memo(
     );
   }
 );
+
+NodeItem.displayName = "NodeItem";
+
 
 export const JsonNode = memo(({ data, id }: NodeProps<ReactFlowNode>) => {
   const pathName = data.processedJsonData.parentPath ?? "root";

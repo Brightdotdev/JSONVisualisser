@@ -18,7 +18,7 @@ const jetbrainsMono = JetBrains_Mono({ subsets: ["latin"], variable: "--font-mon
 
 // ✅ Metadata for SEO
 export const metadata: Metadata = {
-  title: " :D JSON Visualizer and formatter",
+  title: " :D  Brightdotdev/JSONVisualisser",
   description: "Turn raw JSON into interactive visual graphs with Fromarter. Human-readable, searchable, and explorable.",
   keywords: ["JSON", "visualizer", "React Flow", "graph tool", "data visualization"],
   authors: [{ name: "Akinola Bright - Brightdotdev" }],

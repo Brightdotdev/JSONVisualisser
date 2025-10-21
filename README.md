@@ -1,37 +1,111 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-## Getting Started
+# {} JSONVisualisser
+**Visualize, search, and explore JSON data — beautifully.**
 
-First, run the development server:
+This is an interactive JSON visualizer built with **React Flow**, **Next.js**, and **Tailwind CSS**.  
+Paste your JSON and watch it transform into an elegant node-based graph you can explore, search, and analyze.
+
+![Demo Screenshot](./public/demo/home-page-demo.png)
+
+---
+
+## ⚡ Features
+
+- 🔍 **Smart Search** — Find keys or values instantly across deeply nested structures.  
+- 🕸️ **Interactive Graph** — Each key/value pair becomes a node connected by edges.  
+- 🎨 **Dark + Purple Theme** — Minimal UI with subtle gradients and glow accents.  
+- ⚙️ **React Flow Powered** — Smooth panning, zooming, and node interactions.  
+- 🧩 **Modular Design** — Easy to extend with new features or data types.
+
+![Main Demo](./public/demo/main-demo.gif)
+
+---
+
+## 🚀 Getting Started
+
+Clone the repository and install dependencies:
+
+```bash
+git clone https://github.com/Brightdotdev/JSONVisualisser
+cd JSONVisualisser
+npm install
+````
+
+Run the development server:
 
 ```bash
 npm run dev
 # or
 yarn dev
-# or
-pnpm dev
-# or
-bun dev
+# really any package manager you prefer
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) with your browser to see it in action.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 🧱 Tech Stack
 
-## Learn More
+* [Next.js](https://nextjs.org) — App router + deployment ready
+* [React Flow](https://reactflow.dev) — Graph rendering and interactivity
+* [Tailwind CSS](https://tailwindcss.com) — Styling and layout
+* [TypeScript](https://www.typescriptlang.org) — Type safety and clarity
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 🪄 Screenshots
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+![Graph demo](./public/demo/graph-demo.gif)
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+##  Why I Built This
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
-"# Json-Flow" 
+This project started as a flash thought — *“What if I could actually see my JSON?”*
+It quickly turned into an experiment that helped me understand data structures and graph rendering in a deeper way.
+
+---
+
+## 🌍 Live Demo
+
+👉 [Demo Link](https://jsonflow-demo.vercel.app) *(Coming soon)*
+
+---
+
+## 💬 Feedback & Feature Requests
+
+I’d love to hear from you!
+If you have ideas for improving JSON Flow Visualizer — from UI tweaks to performance enhancements — open an **[issue](https://github.com/Brightdotdev/JSONVisualisser/issues)** or start a **discussion**.
+
+You can also reach out directly on [**Twitter**](https://x.com/Brightdotdev) for quick chats or feedback threads.
+
+---
+
+## 🤝 Contributing
+
+This project is open source and welcomes all contributions!
+
+Here’s how you can help:
+
+1. **Fork** the repository
+2. **Create a branch** for your feature or fix
+3. **Commit your changes**
+4. **Open a Pull Request**
+
+Whether it’s fixing typos, improving the README, optimizing performance, or adding new visualization features — all contributions are welcome frfr
+
+---
+
+##  Who Did This???
+
+Built by [**Brightdotdev**](https://brightdotdev.vercel.app)
+
+If you like this project, drop a ⭐ on the repo or share it so more devs can visualize their JSON data the cool way 😎
+
+---
+
+## 🪶 License
+
+This project is licensed under the **MIT License** — feel free to use, modify, and build upon it.
+
+

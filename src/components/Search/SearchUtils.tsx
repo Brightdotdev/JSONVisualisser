@@ -1,15 +1,15 @@
 import { ResultDetailsProps, SearchFiltersProps, SearchOptions, SearchResult, SearchResultsProps } from "@/types/Search";
-import { BarChart3, CaseSensitive, Check, Copy, ExternalLink, FileText, Key, MapPin, MessageSquare, Search, Type, X } from "lucide-react";
-import { useCallback, useId, useState } from "react";
+import { BarChart3, CaseSensitive, Check, Copy, ExternalLink, FileText, Key, MapPin, MessageSquare, Search, Type } from "lucide-react";
+import { useId, useState } from "react";
 import { Checkbox } from "../ui/checkbox";
 import { Label } from "../ui/label";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "../ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { Separator } from "../ui/separator";
 import { ScrollArea } from "../ui/scroll-area";
-import { Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle } from "../ui/drawer";
+import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "../ui/drawer";
 
 
 

@@ -24,7 +24,7 @@ const Header = () => {
           {/* Brand Name */}
           <span className="font-semibold text-xs sm:text-sm md:text-base whitespace-nowrap">
             Brightdotdev/
-            <span className="text-primary">JSONVisualiser</span>
+            <span className="text-primary">JSONVisualisser</span>
           </span>
         </Link>
 

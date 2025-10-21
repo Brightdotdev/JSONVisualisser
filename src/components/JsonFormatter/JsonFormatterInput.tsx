@@ -1,17 +1,16 @@
 "use client";
 
-import { useState, memo, useCallback, useEffect, useRef, useMemo } from "react";
+import { useState, useCallback, useEffect, useRef, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import TextareaAutosize from "react-textarea-autosize";
 import { InputGroup, InputGroupAddon, InputGroupButton } from "@/components/ui/input-group";
-import { Card } from "@/components/ui/card";
-import { X, Upload } from "lucide-react";
-import { useJsonFormatter } from "@/hooks/useJsonFormatter";
-import { Alert, AlertTitle } from "../ui/alert";
+
+import { Upload } from "lucide-react";
+import { useJsonFormatter } from "@/hooks/Reactflow/useJsonFormatter";
+
 import { Spinner } from "../ui/spinner";
-import { useJsonTabs } from "@/hooks/useJsonTabs";
-import { Button } from "../ui/button";
-import { Loader } from "../ui/loader"; // Import the loader
+import { useJsonTabs } from "@/hooks/Reactflow/useJsonTabs";
+
 import { ErrorDisplay, JsonMetadataDisplay, LoadingOverlay } from "./JsonFormatterInputUtils";
 
 

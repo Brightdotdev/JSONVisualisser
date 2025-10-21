@@ -1,7 +1,6 @@
 "use client";
 
 import { ReactFlowGraphCanvas } from '@/components/screens/ReactFlowGraphCanvas'
-import { useJsonTabs } from '@/hooks/useJsonTabs';
 import { notFound } from 'next/navigation';
 import React from 'react'
 

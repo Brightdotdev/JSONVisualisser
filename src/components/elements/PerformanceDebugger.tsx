@@ -10,9 +10,8 @@ interface ChromePerformance extends Performance {
   };
 }
 
-interface MemoryPressureEntry extends PerformanceEntry {
-  pressure: 'low' | 'medium' | 'high';
-}
+
+
 
 const PerformanceDebugger = memo(({ nodes, edges }: { nodes: any[], edges: any[] }) => {
   const [visible, setVisible] = useState(false);

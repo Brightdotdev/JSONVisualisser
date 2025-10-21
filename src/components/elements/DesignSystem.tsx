@@ -38,10 +38,6 @@ export function DesignSystemDemo() {
   const [activeTab, setActiveTab] = useState('colors')
   const { theme, setTheme } = useTheme()
 
-  const toggleTheme = () => {
-    setTheme(theme === 'dark' ? 'light' : 'dark')
-  }
-
   return (
     <div className="min-h-screen w-[94vw] bg-background text-foreground transition-colors flex item-center 
     justify-start

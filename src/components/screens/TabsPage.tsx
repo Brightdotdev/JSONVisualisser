@@ -14,7 +14,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Trash2, ArrowLeft } from "lucide-react";
-import { useJsonTabs } from "@/hooks/useJsonTabs";
+import { useJsonTabs } from "@/hooks/Reactflow/useJsonTabs";
 import { format } from "date-fns";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";

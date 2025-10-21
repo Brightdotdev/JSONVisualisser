@@ -1,7 +1,7 @@
 import { Background, BackgroundVariant, Edge, ReactFlow, useEdgesState, useNodesState, useReactFlow } from "@xyflow/react";
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import { ExtraDataTypes,  JsonTab} from "@/types/JsonTypes";
-import { useJsonState } from "@/hooks/useJsonState";
+import { useJsonState } from "@/hooks/Reactflow/useJsonState";
 
 import { JsonNode } from "../nodes/JsonNode";
 import { ReactFlowNode } from "@/types/JsonNodeTypes";

@@ -1,19 +1,12 @@
 // JsonSearchCommand.tsx
-import { useJsonSearch } from '@/hooks/useJsonSearch';
-import { SearchOptions, SearchResult } from '@/types/Search';
-import React, { JSX, useCallback, useEffect, useId, useState } from 'react';
+import { useJsonSearch } from '@/hooks/Reactflow/useJsonSearch';
+
+import React, {  useEffect, useState } from 'react';
 import { Button } from '../ui/button';
-import { BarChart3, CaseSensitive, Copy, ExternalLink, FileText, Focus, Key, MapPin, MessageSquare, Search, Type, X } from 'lucide-react';
-import { CommandDialog, CommandEmpty, CommandInput, CommandItem, CommandList, CommandSeparator } from '../ui/command';
-import { Checkbox } from '../ui/checkbox';
-import { Label } from '../ui/label';
-import { Badge } from '../ui/badge';
-import { useMediaQuery } from '@/hooks/useMediaQuery';
-import { Dialog, DialogDescription, DialogHeader, DialogTitle, DialogContent } from '../ui/dialog';
-import { Separator } from '../ui/separator';
-import { ScrollArea } from '../ui/scroll-area';
-import { Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle } from '../ui/drawer';
+import {  Search } from 'lucide-react';
+import { CommandDialog, CommandEmpty, CommandInput, CommandList } from '../ui/command';
 import { SearchFilters, SearchResults } from './SearchUtils';
+
 
 
 interface JsonSearchCommandProps {
@@ -35,7 +28,6 @@ export const JsonSearchCommand: React.FC<JsonSearchCommandProps> = ({
     isSearching,
     options,
     updateOptions,
-    dataTypes
   } = useJsonSearch(data);
   const [searchOpen, setSearchOpen] = useState(false);
 
