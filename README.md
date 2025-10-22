@@ -100,7 +100,7 @@ Whether it’s fixing typos, improving the README, optimizing performance, or ad
 
 Built by [**Brightdotdev**](https://brightdotdev.vercel.app)
 
-If you like this project, drop a ⭐ on the repo or share it so more devs can visualize their JSON data the cool way 😎
+If you like this project, drop a ⭐ on the repo or share it so more devs can visualize their JSON data beautifully!
 
 ---
 
