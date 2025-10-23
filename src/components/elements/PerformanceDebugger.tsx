@@ -114,7 +114,7 @@ const PerformanceDebugger = memo(({ nodes, edges }: { nodes: any[], edges: any[]
           
           observer.observe({ entryTypes: ['measure', 'layout', 'paint', 'render'] });
         } catch (e) {
-          console.log('PerformanceObserver not fully supported');
+          return
         }
       }
     };
@@ -297,9 +297,10 @@ const PerformanceDebugger = memo(({ nodes, edges }: { nodes: any[], edges: any[]
           onClick={() => {
             if (window.gc) {
               (window as any).gc();
-              console.log('🗑️ Manual GC triggered');
+            
+              
             } else {
-              console.log('🗑️ GC not available in this browser');
+              return
             }
           }}
         >

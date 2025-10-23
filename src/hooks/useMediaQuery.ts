@@ -34,7 +34,8 @@ export function useMediaQuery(query: string): boolean {
         return () => media.removeListener(updateMatches);
       }
     } catch (error) {
-      console.warn('Error setting up media query:', error);
+
+return
     }
   }, [query]);
 

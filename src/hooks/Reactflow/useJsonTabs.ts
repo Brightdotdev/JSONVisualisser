@@ -62,15 +62,14 @@ const addJsonTab = useCallback((jsonData: JsonObject, fileName: string): JsonTab
 
 
   const getJsonTab = useCallback((identifier: string): JsonTab | undefined => {
-    console.log("getJsonTab called with identifier:", identifier);
-    console.log("Json tabs", jsonTabs);
+
+    
     const json = jsonTabs.find(tab => 
       tab.slug === identifier || 
       tab.id === identifier
     );
-    console.log("Found json", JSON.stringify(json))
-   
-
+    
+  
     return json
   }, [jsonTabs]);
 

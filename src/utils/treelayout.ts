@@ -39,7 +39,7 @@ export class TreeLayout {
     const tree = this.buildTreeFromEdges(nodes, edges);
     
     if (!tree) {
-      console.warn('No root node found for layout');
+   
       return nodes; // Return original nodes if no tree structure
     }
 

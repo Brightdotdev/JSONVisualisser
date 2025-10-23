@@ -35,10 +35,9 @@ export const useJsonSearch = (data: any, initialOptions?: SearchOptions) => {
     
     // Add timeout to avoid blocking UI and add debugging
     setTimeout(() => {
-      console.log('Searching for:', query);
+     
+      
       const results = jsonSearch.search(query);
-      console.log('Raw results from JsonSearch:', results);
-      console.log('Number of results:', results.length);
       setIsSearching(false);
     }, 0);
   }, [jsonSearch]);
